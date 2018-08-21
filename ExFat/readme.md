@@ -1,4 +1,4 @@
-### Powershell script to show the [Accocated Clusters](https://github.com/kacos2000/Other/blob/master/ExFat/ExF_Bitmap.ps1) from an ExFAT $Bitmap 
+### Powershell script to show the [Allocated Clusters](https://github.com/kacos2000/Other/blob/master/ExFat/ExF_Bitmap.ps1) from an ExFAT $Bitmap 
 
 
 Console Output:<br>
