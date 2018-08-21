@@ -9,8 +9,10 @@ Each binary value represents the allocation status for one of 8 clusters startin
 
 bit |	1 |	1 |	1 |	1 |	0 |	0 |	0 |	0
 :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: 
-cluster |	34 |	35 |	36 |	37 |	38 |	39 |	40 |	41
-status | in use |	in use |	in use |	in use |	in use |	in use |	in use |	free
+cluster |	81 |	80 |	79 |	78 |	77 |	76 |	75 |	74
+status | in use |	in use |	in use |	in use |	free |	free |	free |	free
+
+so we get:<br>
 
 Popup Window Output *(listing of all allocated clusters)*:<br>
 ![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit1.JPG)
