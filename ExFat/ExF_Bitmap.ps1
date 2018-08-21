@@ -23,7 +23,7 @@ Write-Host "Loaded ($File)"
 $AllClusters = @(Get-Content $File -Encoding Byte -ReadCount 1) #readcount 1 to get each byte instead of the whole dump
 $count = $AllClusters.count #Same as Filesize
 $x=0
-
+write-host "Bitmap size: $count" -f white
  
 $Clusters = foreach ($c in $AllClusters){
             $cl1=$cl2=$cl31=$cl4=$cl5=$cl6=$cl7=$cl8=$v=$b=$null
