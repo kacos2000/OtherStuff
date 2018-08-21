@@ -4,16 +4,34 @@
 Console Output:<br>
 ![console](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit0.JPG)
 
+Each binary value represents the allocation status for one of 8 clusters starting from right to left. So the Hex value 0xF0 of offset 0x09 is represented in binary 111110000 and accordingly: 
 
-Popup Window Output:<br>
+
+bit |	1 |	1 |	1 |	1 |	0 |	0 |	0 |	0
+:----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: 
+cluster |	34 |	35 |	36 |	37 |	38 |	39 |	40 |	41
+status | in use |	in use |	in use |	in use |	in use |	in use |	in use |	free
+
+Popup Window Output *(listing of all allocated clusters)*:<br>
 ![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit1.JPG)
 
-The allocated cluster clount:<br>
+
+
+
+The total allocated cluster count:<br>
 ![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit2.JPG) 
-\
+
 plus the free cluster count *(FTK imager)*:<br>
 
 ![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit3.JPG)
 
 Match the total number of clusters:<br>
-![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit4.JPG)
+![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit4.JPG) 
+
+
+
+
+*References:*<br>
+[Reverse Engineering the Microsoft exFAT File System](https://www.sans.org/reading-room/whitepapers/forensics/reverse-engineering-microsoft-exfat-file-system-33274) *(pages 42-44)*<br>
+[The Extended FAT file system](https://events.static.linuxfound.org/images/stories/pdf/lceu11_munegowda_s.pdf) *(slide 14)*<br>
+[]()
