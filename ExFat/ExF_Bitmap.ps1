@@ -20,6 +20,7 @@ $F =$File.replace($env:LOCALAPPDATA,'')
 Write-Host "Loaded ($File)"
 
 #Read the file:
+$count=$ccount=$null
 $AllClusters = @(Get-Content $File -Encoding Byte -ReadCount 1) #readcount 1 to get each byte instead of the whole dump
 $count = $AllClusters.count #Same as Filesize
 $x=0
@@ -72,4 +73,4 @@ $Clusters = foreach ($c in $AllClusters){
 }
 
 
-$Clusters|Out-GridView -Title "$ccount Occupied Clusters in $File" -PassThru
+$Clusters|Out-GridView -Title "There are $ccount allocated Clusters (in use)  in $File" -PassThru
