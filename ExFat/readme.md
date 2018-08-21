@@ -4,7 +4,7 @@
 Console Output:<br>
 ![console](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit0.JPG)
 
-Each binary value represents the allocation status for one of 8 clusters starting from right to left. So the Hex value 0xF0 of offset 0x09 is represented in binary 111110000 and accordingly: 
+Each byte value represents the allocation status for 8 clusters. Translated to binary, each bit, starting from right to left is the allocation status switch for one cluster. So the Hex value 0xF0, of offset 0x09, is represented in binary 111110000 and accordingly: 
 
 
 bit |	1 |	1 |	1 |	1 |	0 |	0 |	0 |	0
