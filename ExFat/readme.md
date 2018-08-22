@@ -16,6 +16,7 @@ so we get:<br>
 
 Popup Window Output *(listing of all allocated clusters)*:<br>
 ![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit1.JPG)
+*Note: I ordered the Cluster (#1-#8) in numerical order for easier viewing.* 
 
 
 
