@@ -1,12 +1,15 @@
-﻿# Show an Open File Dialog 
-# Show Open File Dialogs 
+# Copyright Costas Katsavounidis 8/2018
+# CC Attribution 4.0 International (CC BY 4.0) 
+# https://creativecommons.org/licenses/by/4.0/legalcode
+
+# Show an Open File Dialog 
 Function Get-FileName($initialDirectory, $Title ,$Filter)
 {  
 [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") |Out-Null
 		$OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
 		$OpenFileDialog.Title = $Title
 		$OpenFileDialog.initialDirectory = $initialDirectory
-        $OpenFileDialog.Filter = $filter
+                $OpenFileDialog.Filter = $filter
 		$OpenFileDialog.ShowDialog() | Out-Null
 		$OpenFileDialog.ShowReadOnly = $true
 		$OpenFileDialog.filename
