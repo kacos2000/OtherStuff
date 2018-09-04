@@ -3,6 +3,7 @@
 
 Copyright (C) Microsoft Corporation. All rights reserved.<br>
 Command line tool for useful VHD operations <br>
+Author: [@vBenArmstrong](https://twitter.com/vBenArmstrong) - *[blog post](https://blogs.msdn.microsoft.com/virtual_pc_guy/2009/03/25/quick-fixed-vhd-creation-tool/)*<br>
 
 ![usage](https://raw.githubusercontent.com/kacos2000/Other/master/VHDtool/VHDTool.JPG)<br>
 
