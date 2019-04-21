@@ -1,0 +1,78 @@
+2017.06.07 18:14:02	rkDumper (v. 1.04)
+2017.06.07 18:14:02	(c) RedScorpio, Moscow, 2014-2017
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	Command parameters: "/user" "/excl:pn0,pn1,pn2,pn3,pn4,pn5,pn6,pn7,pn8" "/log" "dump"
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	Run parameters:
+2017.06.07 18:14:02		log		= 1
+2017.06.07 18:14:02		debug		= 0
+2017.06.07 18:14:02		quiet		= 0
+2017.06.07 18:14:02		mono		= 0
+2017.06.07 18:14:02		includelist	= ""
+2017.06.07 18:14:02		excludelist	= "pn0,pn1,pn2,pn3,pn4,pn5,pn6,pn7,pn8"
+2017.06.07 18:14:02		user		= 1
+2017.06.07 18:14:02		memsize		= 134217728
+2017.06.07 18:14:02		basecfgpath	= ""
+2017.06.07 18:14:02		loadername	= ""
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	==========================[ START ]==========================
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	Detected OS:	Windows 8 Pro [build 9200] x64
+2017.06.07 18:14:02	Real OS:	Windows 10 Pro [build 14393] x64
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	--- Firmware dumping ---
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	-- Devices enumerating --
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	Devices table (found 5 USB devices):
+2017.06.07 18:14:02	1	Device #0: USB Root Hub (ports: 26)
+2017.06.07 18:14:02	1.2	Device #1: Rockusb Device
+2017.06.07 18:14:02		VID = 0x2207, PID = 0x310b, REV = 0x0100
+2017.06.07 18:14:02	1.4	Device #2: USB Input Device
+2017.06.07 18:14:02		VID = 0x187c, PID = 0x0530, REV = 0x0000
+2017.06.07 18:14:02	1.5	Device #3: Qualcomm Atheros QCA61x4 Bluetooth 4.1
+2017.06.07 18:14:02		VID = 0x0cf3, PID = 0xe300, REV = 0x0001
+2017.06.07 18:14:02	1.7	Device #4: USB Composite Device
+2017.06.07 18:14:02		VID = 0x0bda, PID = 0x58c2, REV = 0x6202
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	Found:	LOADER device (RK3188 2207:310b) #1
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	Found LOADER Rockchip device
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	First 0x0008 NAND blocks reading
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	PARM sign found
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	FlashInfo
+2017.06.07 18:14:02	Manufacturer:	Hynix (0x02)
+2017.06.07 18:14:02	Flash size:	8528MB (0x010a8000)
+2017.06.07 18:14:02	Full size:	17056MB (0x02150000)
+2017.06.07 18:14:02	Block size:	4096KB
+2017.06.07 18:14:02	Page size:	16KB
+2017.06.07 18:14:02	ECC bits:	40
+2017.06.07 18:14:02	Access time:	32
+2017.06.07 18:14:02	Flash CS:	0 2 (0x05)
+2017.06.07 18:14:02	
+2017.06.07 18:14:02	Partition "misc"		skipped
+2017.06.07 18:14:02	Partition "kernel"		skipped
+2017.06.07 18:14:02	Partition "boot"		skipped
+2017.06.07 18:14:02	Partition "recovery"		skipped
+2017.06.07 18:14:02	Partition "backup"		skipped
+2017.06.07 18:14:02	Partition "cache"		skipped
+2017.06.07 18:14:02	Partition "userdata"		skipped
+2017.06.07 18:14:02	Partition "metadata"		skipped
+2017.06.07 18:14:02	Partition "kpanic"		skipped
+2017.06.07 18:15:28	Partition "system"	saved (format: ext4 image)
+2017.06.07 18:27:59	Partition "user"	saved (format: FAT32 image)
+2017.06.07 18:27:59	
+2017.06.07 18:27:59	-- Rockchip LOADER device resetting --
+2017.06.07 18:27:59	
+2017.06.07 18:27:59	Found LOADER Rockchip device
+2017.06.07 18:27:59	
+2017.06.07 18:27:59	Command to reset sent successfully
+2017.06.07 18:27:59	Command to reset confirmed
+2017.06.07 18:27:59	
+2017.06.07 18:27:59	Configuration file for RKAndroidTool v.1.xx (8-bit) created
+2017.06.07 18:27:59	Configuration file for RKAndroidTool v.2.xx (16-bit) created
+2017.06.07 18:27:59	
+2017.06.07 18:27:59	==========================[ STOP  ]==========================
