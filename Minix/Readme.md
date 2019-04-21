@@ -3,7 +3,7 @@
 
 
 The utility [RKdumper](https://forum.xda-developers.com/general/rooting-roms/tool-rkdumper-utility-backup-firmware-t2915363) 
-(see [.log](https://github.com/kacos2000/Other/blob/master/rkdumper.log) with output from a test) Dump of only the system and user partitions).<br> 
+(see [.log](https://github.com/kacos2000/Other/blob/master/Minix/rkdumper.log) with output from a test) Dump of only the system and user partitions).<br> 
 
 Use the driver set from Rockchip [Source #1](https://github.com/chirimen-oh/CHIRIMEN-tools) or [Source #2](https://androidmtk.com/download-rockchip-driver-assistant), 
 to get a dump of all the partitions.
@@ -28,10 +28,10 @@ No need to connect device to display. Just the mini-usb cable attached to PC and
 07-Jun-17  06:27 PM     7,969,177,600 user.img<br>
 
 The dumped user.img <br>
-![1](https://raw.githubusercontent.com/kacos2000/Other/master/1.jpg)<br>
+![1](https://raw.githubusercontent.com/kacos2000/Other/master/Minix/1.jpg)<br>
 
 and userdata.img<br>
-![2](https://raw.githubusercontent.com/kacos2000/Other/master/2.jpg)<br>
+![2](https://raw.githubusercontent.com/kacos2000/Other/master/Minix/2.jpg)<br>
 
 can be easily loaded in FTK imager or any other forensic tool.
 
