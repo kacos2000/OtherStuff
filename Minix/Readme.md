@@ -1,5 +1,5 @@
-## How to get a full physical dump from Minix Neo X7 ##
-(The RK3188 features a quad-core ARM Cortex-A9) and Android 4.2 – 4.4)
+## How to get a full physical dump from [Minix Neo X7](http://www.minix.us/products/NEOX7.html) (RK3188) ##
+(The [Rockchip RK3188](https://dl.radxa.com/rock/docs/hw/ds/Rockchip_RK3188_Specifiation_Detail_V1.2.pdf) features a quad-core ARM Cortex-A9) and Android 4.2 – 4.4)
 
 
 The utility [RKdumper](https://forum.xda-developers.com/general/rooting-roms/tool-rkdumper-utility-backup-firmware-t2915363) 
