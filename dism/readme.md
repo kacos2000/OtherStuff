@@ -1,9 +1,7 @@
-(Windows Surface RT (ARM))<br>
-### Method to image the logical volume(s) of the device by using DISM ###
+## Windows Surface RT (ARM) <br>
+### Method to image the logical volume(s) of the device by using [DISM](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/what-is-dism) ###
 
-* First you need to have an access to the system, in other words you have to log into the system. If you don't have the user password, you must find a way to find it.
-* When you are logged in the system, you need to generate the bitlocker-key. These devices are automatically protected with bitlocker when you register the system the first time with your Windows live account.
-* You'll need the key to unencrypt your image file.
+* First you need to have an access to the system, in other words you have to log into the system. If you don't have the user password, you must find a way to find it. When you are logged in the system, you need to generate the bitlocker-key. These devices are automatically protected with bitlocker when you register the system the first time with your Windows live account. You'll need the key to unencrypt your image file.
 
 * Then, when the OS is booted, hold on the left shift-key and click on reboot
 * You should see the advanced options menu
@@ -11,7 +9,8 @@
 * If everything's worked fine a command prompt should appear. That's it, now you can use the command dism to make a volume disk image.
 * If needed you can use diskpart to assign a letter to the hidden volumes/other partitions.
 * Use the command Diskpart -- > list volume -- > select volume X -- > assign letter=X
-* Ok now that every volume is assigned, now you can use the command dism
+* Ok now that every volume is assigned, now you can use the command **DISM**<br>
+*[(DISM Image Management command line options)](https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-image-management-command-line-options-s14)*<br>
 
 **dism /capture-image /imagefile:X:\"yourimagefile".WIM /capturedir:c:\ /name:winrt**
 
@@ -43,6 +42,8 @@ dism /append-image /imagefile:X:"yourimagefile" /capturedir:d:\ /name:system
 
 * Once finished to unmount type the following command 
 
-**dism /unmount-wim /mountdir:X:"path to your wim file" /discard**
+**dism /unmount-wim /mountdir:X:"path to your wim file" /discard** <br>
 
-[(source)](https://www.forensicfocus.com/Forums/viewtopic/p=6599093/#6599093)
+
+
+*[(source)](https://www.forensicfocus.com/Forums/viewtopic/p=6599093/#6599093)*
