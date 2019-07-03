@@ -37,11 +37,12 @@ dism /append-image /imagefile:X:"yourimagefile" /capturedir:d:\ /name:system
 
 **"dism /mount-wim /wimfile:X:"path to your wim file" /index:X /mountdir:X:\path to extract the files"**
 
+
 /index: choose the number of the index (volume) you want to extract
 /mountdir: choose the directory where to extract the files
 
 * Once finished to unmount type the following command 
 
-**dism /unmount-wim /mountdir:X:"path to your wim file" /discard  **
+**dism /unmount-wim /mountdir:X:"path to your wim file" /discard**
 
-[source](https://www.forensicfocus.com/Forums/viewtopic/p=6599093/#6599093)
+[(source)](https://www.forensicfocus.com/Forums/viewtopic/p=6599093/#6599093)
