@@ -8,7 +8,7 @@ ________________________________________________________________________________
 
   * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint $ related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
 
-    * Note: *Due to a bug yet to be solved, the mounted hive does not unload automatically. You may need to close the Powershell terminal, open a new one and  type **reg unload HKEY_LOCAL_MACHINE\Temp**.*
+    * Note: *Due to a bug yet to be solved, the mounted hive does not unload automatically. You may need to close the Powershell terminal, open a new one and  type ***reg unload HKEY_LOCAL_MACHINE\Temp***.*
 __________________________________________________________________________________________
 
   * **[OUC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUC-FSF.ps1)**: Powershell standlone script to parse the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
@@ -16,7 +16,7 @@ ________________________________________________________________________________
 
 __________________________________________________________________________________________
 
-    * Note: *the files exported from the above scripts are set to be saved at the* $env:TEMP *folder.*
+    * Note: The files exported from the above scripts are set to be saved at the $env:TEMP folder.
 __________________________________________________________________________________________
  
 
