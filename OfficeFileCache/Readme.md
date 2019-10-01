@@ -2,8 +2,11 @@
 ## Office Upload Center
 __________________________________________________________________________________________
 
-  * **[ODCfilecache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCfilecache.ps1)**: Powershell script to parse CentralTable.accdb Access db *(filenames, GUIDs, Timestamps)*, FSD & FSF files *(same as OUC-FSF.ps1 below)* from an OfficeFileCache folder. Exports output to .txt & .csv.- If you do not have *[ArsenalRecon's](https://arsenalrecon.com/)* **OSDrecon** press CANCEL in the second File Open Window <br>
-*Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, and x32 for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.
+  * **[ODCfilecache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCfilecache.ps1)**: Powershell script to parse CentralTable.accdb Access db *(filenames, GUIDs, Timestamps)*, FSD & FSF files from an OfficeFileCache folder. 
+Exports output to .txt & .csv.<br> 
+If you do not have *[ArsenalRecon's](https://arsenalrecon.com/)* **OSDrecon** press CANCEL in the second File Open Window <br>
+
+     *Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, and x32 for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.
 __________________________________________________________________________________________
 
   * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint $ related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
@@ -12,11 +15,10 @@ ________________________________________________________________________________
 __________________________________________________________________________________________
 
   * **[OUC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUC-FSF.ps1)**: Powershell standlone script to parse the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
-*CentralTable.accdb points to the GUID in the FSF filename, and the FSF contains the GUID of the respective File Store Data (FSD) container.* 
-
 __________________________________________________________________________________________
 
-   - Note: *The files exported from the above scripts are set to be saved at the* `$env:TEMP` *folder.*
-__________________________________________________________________________________________
+   - Note1: *The files exported from the above scripts are set to be saved at the* `$env:TEMP` *folder.*
+   - Note2: *The CentralTable.accdb points to the GUID in the FSF filename, and the FSF contains the GUID of the respective File Store Data (FSD) container.*
+  __________________________________________________________________________________________
  
 
