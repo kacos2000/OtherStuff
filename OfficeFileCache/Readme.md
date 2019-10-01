@@ -3,7 +3,7 @@
 __________________________________________________________________________________________
 
   * **[ODCfilecache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCfilecache.ps1)**: Powershell script to parse CentralTable.accdb Access db *(filenames, GUIDs, Timestamps)*, FSD & FSF files *(same as OUC-FSF.ps1 below)* from an OfficeFileCache folder. Exports output to .txt & .csv.- If you do not have *[ArsenalRecon's](https://arsenalrecon.com/)* **OSDrecon** press CANCEL in the second File Open Window <br>
-*Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, and x32 for 32-bit Windows from an elevated cmd prompt, using the "/Quiet" switch.* 
+*Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, and x32 for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.
 __________________________________________________________________________________________
 
   * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint $ related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
