@@ -17,7 +17,7 @@ $DesktopPath = [Environment]::GetFolderPath("Desktop")
 
 $File = Get-FileName -initialDirectory $DesktopPath -Filter "NTUser.dat (*.dat)|NTUser.dat" -Title 'Select NTuser.dat'
 Try{write-host "File Selected: " -f White -NoNewline; (Get-ItemProperty $File).FullName}
-Catch{Write-warning "(OUCcentraltable.ps1):" ; Write-Host "User Cancelled" -f White; exit}
+Catch{Write-warning "(ODCreg.ps1):" ; Write-Host "User Cancelled" -f White; exit}
 
 
 $ErrorActionPreference = "Stop"
@@ -42,16 +42,15 @@ $ver = $idpath =@{}
 try{$Key = (Get-ItemProperty -Path "HKLM:\Temp\Software\")
 }
 Catch{
-	Write-Host -ForegroundColor Yellow "The selectd ($File) does not have the" 
+	Write-Host -ForegroundColor Yellow "The selectd $($File) does not have the" 
 	Write-Host -ForegroundColor Yellow "'Software\' registry key." 
 	[gc]::Collect()
-    Timeout -T 60		
 	reg unload HKEY_LOCAL_MACHINE\Temp 
     exit}
 finally{}
 Write-Host -ForegroundColor Green "$File loaded OK"
 try{$ver = ((Get-ChildItem -Path "HKLM:\Temp\Software\Microsoft\office\") | Select-Object -ExpandProperty PSChildName)}
-catch{   Write-warning "(ODCreg.ps1):" -f Yellow -nonewline; Write-Host " Office not installed?" -f White;
+catch{   Write-warning "(ODCreg.ps1):" -nonewline; Write-Host " Office not installed?" -f White;
         [gc]::Collect()		
 	    reg unload HKEY_LOCAL_MACHINE\Temp 
         exit} 
@@ -65,6 +64,8 @@ $ids = @(foreach($v in $ver)
         {Get-ChildItem "HKLM:\Temp\Software\Microsoft\office\$($v)\Common\Roaming\Identities\"}  
         })
 if($ids.count -ge 1){write-host "IDs found:"-f Red; foreach($d in $ids){Write-Host "$($d.name.trimstart("HKEY_LOCAL_MACHINE\Temp"))"-f DarkYellow}}
+
+
 $idp =  @(foreach($i in $ids.name){if( !(Test-Path "$($i)\Settings\")){get-childitem ($i -replace ("HKEY_LOCAL_MACHINE","HKLM:"))}})
 $idp1 = @(foreach($e in $idp.name){get-childitem ($e -replace ("HKEY_LOCAL_MACHINE","HKLM:"))})
 $idp2 = @(foreach($g in $idp1.name){if( !(Test-Path "$($g)\{00000000-0000-0000-0000-000000000000}\ListItems\")){get-childitem ($g -replace ("HKEY_LOCAL_MACHINE","HKLM:"))}})
@@ -123,20 +124,20 @@ $Metadata = foreach($m in $metap){$c++
             
             [PSCustomObject]@{            
                         
-                        LastModified = Get-Date ("$($dow.($dayofweek)) $($year)-$($month)-$($day) $($Hour):$($Minutes):$($Seconds).$($millisec)")-f o #UTC
-                        Itemkey =       $Itemkey
-                        ServiceName =   $xmlitem.Metadata.ServiceName
+                        "LastModified (UTC)" = Get-Date ("$($dow.($dayofweek)) $($year)-$($month)-$($day) $($Hour):$($Minutes):$($Seconds).$($millisec)")-f o #UTC
+                        Itemkey              = $Itemkey
+                        ServiceName          = $xmlitem.Metadata.ServiceName
                         LocalizedServiceName = $xmlitem.Metadata.LocalizedServiceName
-                        DocOwnerID =    $xmlitem.Metadata.DocOwnerID
-                        FriendlyPath =  $xmlitem.Metadata.FriendlyPath
-                        DocTitle =      "$($xmlitem.Metadata.DocTitle).$($xmlitem.Metadata.DocExtension)"
-                        FileSizeInBytes=$xmlitem.Metadata.FileSizeInBytes
-                        StorageHost =   $xmlitem.Metadata.StorageHost
-                        ResourceId  =   $xmlitem.Metadata.ResourceId
-                        LastUpdateDate= if(!$xmlitem.Metadata.LastUpdatedDate){}else{Get-Date ([DateTime]::FromFileTime($xmlitem.Metadata.LastUpdatedDate)) -f o}
-                        #ItemData =      $ItemData #Left out for screen economy
-                        SortKey =       $SortKey
-                        Path =          $m.pspath.trimstart("Microsoft.PowerShell.Core\Registry::")
+                        DocOwnerID           = $xmlitem.Metadata.DocOwnerID
+                        FriendlyPath         = $xmlitem.Metadata.FriendlyPath
+                        DocTitle             = "$($xmlitem.Metadata.DocTitle).$($xmlitem.Metadata.DocExtension)"
+                        FileSizeInBytes      = $xmlitem.Metadata.FileSizeInBytes
+                        StorageHost          = $xmlitem.Metadata.StorageHost
+                        ResourceId           = $xmlitem.Metadata.ResourceId
+                        LastUpdateDate       = if(!$xmlitem.Metadata.LastUpdatedDate){}else{Get-Date ([DateTime]::FromFileTime($xmlitem.Metadata.LastUpdatedDate)) -f o}
+                        #ItemData            = $ItemData #Left out for screen economy
+                        SortKey              = $SortKey
+                        Path                 =  $m.pspath.trimstart("Microsoft.PowerShell.Core\Registry::")
                         }
             }
 
@@ -147,15 +148,15 @@ $Metadata|Out-GridView -Title "MS Roaming Metadata - $($File) - Entries found: $
 
 # Saving the decoded data to a csv
 if($Metadata.count -ge1){$snow = Get-Date -Format FileDateTimeUniversal
-Write-Host "Saving Table 'MasterFile' to (csv): 'Metadata-$($snow).txt' in $env:TEMP" -f Yellow
+Write-Host "Saving Table 'MasterFile' to (csv): 'Metadata-$($snow).txt' in $env:TEMP`n" -f Yellow
 $Metadata|Export-Csv -NoTypeInformation -Encoding UTF8 -Path "$($env:TEMP)\Metadata-$($snow).txt"
 Invoke-Item $env:TEMP
 }
 [gc]::Collect()
 try{reg unload HKEY_LOCAL_MACHINE\Temp} 
 catch{
-Write-Warning "`nThere seems to be an issue unloading $($File)."
-Write-Host "Please open a new Powershell terminal Window, copy/paste " -NoNewline; write-host "reg unload HKEY_LOCAL_MACHINE\Temp" -f white -BackgroundColor DarkBlue
+Write-Warning "There seems to be an issue unloading $($File)."
+Write-Host "Please open a new Powershell terminal Window, copy/paste " -NoNewline; write-host "reg unload HKEY_LOCAL_MACHINE\Temp" -f white -b red
 Write-Host "close this Powershell terminal and run the above command in the other terminal Window"
 }
 
