@@ -17,6 +17,10 @@ ________________________________________________________________________________
   * **[OUC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUC-FSF.ps1)**: Powershell standlone script to parse the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
+* **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat.<br>
+__________________________________________________________________________________________
+
+
    - Note1: *The files exported from the above scripts are set to be saved at the* `$env:TEMP` *folder.*
    - Note2: *The CentralTable.accdb points to the GUID in the FSF filename, and the FSF contains the GUID of the respective File Store Data (FSD) container.*
   __________________________________________________________________________________________
