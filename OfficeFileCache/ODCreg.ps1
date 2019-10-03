@@ -1,5 +1,5 @@
 ﻿#Requires -RunAsAdministrator
-
+$ErrorActionPreference = 'Stop'
 # Show Open File Dialogs 
 Function Get-FileName($initialDirectory, $Title ,$Filter)
 {[System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") |Out-Null
@@ -25,20 +25,11 @@ reg load HKEY_LOCAL_MACHINE\Temp $File
  
 
 
-# Looking for Metadata -> usually be found in the user's NTUser.dat at
+# Metadata -> usually be found in the user's NTUser.dat at
 # "SOFTWARE\Microsoft\Office\15.0\Common\Roaming\Identities\xxxxxxxxx_LiveId\Settings\1133\{00000000-0000-0000-0000-000000000000}\ListItems\*\*\"
 # "SOFTWARE\Microsoft\Office\16.0\Common\Roaming\Identities\xxxxxxxxx_LiveId\Settings\1110\{00000000-0000-0000-0000-000000000000}\ListItems\*\*\"
 
-
-try{Test-Path "HKLM:\Temp\Software\Microsoft\office\"|Out-Null}
-Catch{
-	Write-Host -ForegroundColor Yellow "The selectd $($File) does not have the" 
-	Write-Host -ForegroundColor Yellow "'Software\' registry key." 
-	[gc]::Collect()
-	reg unload HKEY_LOCAL_MACHINE\Temp 
-    }
-Write-Host -ForegroundColor Green "$($File) loaded OK"
-
+try{Test-Path "HKLM:\Temp\Software\Microsoft\office\" |Out-Null
 $Metadata =  @{}
 
 # Day of Week
@@ -52,16 +43,19 @@ $dow = @{
 6 = "Saturday"
 }
 
+# Looking for Metadata
 $path = Get-ChildItem -Path "HKLM:\Temp\Software\Microsoft\office\*\Common\Roaming\Identities\*\Settings\*" -Include "Listitems" -Recurse |
 Where-Object {!$_.ItemData -and !$_.ItemKey -and !$_.LastModified -and !$_.SortKey}|Select-Object 
 $x = foreach($p in $path){$p -replace ("HKEY_LOCAL_MACHINE","HKLM:")}
 $mpt = foreach ($u in $x){ (get-item  -path "$($u)\*\*\" |
  Where-Object {!$_.ItemData -and !$_.ItemKey -and !$_.LastModified -and !$_.SortKey}) -replace ("HKEY_LOCAL_MACHINE","HKLM:") }
 $meta = @(foreach($m in $mpt){Get-ItemProperty -path $m})
-
-
-$path.Handle.Close()
-
+if(!$path){
+[gc]::Collect()
+Write-Host "There are no entries in $($File)" -f Red
+reg unload HKEY_LOCAL_MACHINE\Temp
+EXIT 
+}else{$path.Handle.Close()}
 
 # Collect Data                 
 $Metadata = foreach($m in $meta){$c++
@@ -119,6 +113,17 @@ Write-Host "Saving Table 'MasterFile' to (csv): 'Metadata-$($snow).txt' in $env:
 $Metadata|Export-Csv -NoTypeInformation -Encoding UTF8 -Path "$($env:TEMP)\Metadata-$($snow).txt"
 Invoke-Item $env:TEMP
 }
+
+}
+Catch{
+	Write-Host -ForegroundColor Yellow "The selectd $($File) does not have the" 
+	Write-Host -ForegroundColor Yellow "'Software\Microsoft\office\' registry key." 
+	[gc]::Collect()
+	reg unload HKEY_LOCAL_MACHINE\Temp
+    EXIT 
+    }
+Write-Host -ForegroundColor Green "$($File) loaded OK"
+
 
 # Unload mounted NTUset.dat
 try{
