@@ -6,14 +6,12 @@ ________________________________________________________________________________
 Exports output to .txt & .csv.<br> 
 If you do not have *[ArsenalRecon's](https://arsenalrecon.com/)* **OSDrecon** press `Cancel` in the second File Open Window <br>
 
-     *Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, and x32 for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.
+     
+     * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, and x32 for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.<br>
+     * FSD Extraction requires *[ArsenalRecon's](https://arsenalrecon.com/)* OSDrecon tool.<br>
 __________________________________________________________________________________________
 
   * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint $ related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
-  
-     * Note: *Due to a bug yet solved, the mounted hive does not unload automatically. <br>
-              You may need to type the following commands in an Admin powershell terminal:<br>
-             `[gc]::Collect()`<br> `reg unload HKEY_LOCAL_MACHINE\Temp`.*
 __________________________________________________________________________________________
 
   * **[OUC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUC-FSF.ps1)**: Powershell standlone script to parse the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
