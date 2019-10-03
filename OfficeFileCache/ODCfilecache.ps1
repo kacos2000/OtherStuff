@@ -196,22 +196,27 @@ ForEach ($table in $tables)
 }
 
 
-# If OSDrecon.exe is selected, runs it for a Summary Report
+# If OSDrecon.exe is selected, runs it for a Summary Report & FSD extraction
+
 try{
 $FSD_files = Get-ChildItem ($filepath.trimEnd("CentralTable.accdb")) -Filter *.FSD
 $fsdc = $FSD_files.count
 if($fsdc -ge 1){
 Write-Host "Found $($fsdc) FSD Files in Folder" -f White
 }
+try{
 $exe = $ODCpath 
 $input = ($filepath.trimEnd("CentralTable.accdb"))
 $outpath = "$($env:TEMP)"
 $mode = (0,1) #can be 0 or 1. 0 is for printing some basic document info to a summary. 1 is for document extraction.
-
-if($ODCpath -ne ""){foreach($p in $mode){& $exe /input:$input /OutputPath:$outpath /Mode:$p }
+$ZipSig = 0 #can be 0 or 1. set value to 1 to tweak the identification of embedded ooxml documents. default is 0. 
+$Force = 0  #/Force: - can be 0 or 1. when an FSD is missing the file header signature it is assumed invalid 
+if(test-path $ODCpath){foreach($p in $mode){& $exe /input:$input /OutputPath:$outpath /Mode:$p /ZipSig:$ZipSig /Force:$Force}
     }
 }
-catch{Write-warning "(ODCfilecache.ps1):" ; Write-Host "No FSD Files in Folder" -f White}
+catch{Write-warning "(ODCfilecache.ps1): Missing ODCrecon folder"}
+}
+catch{Write-warning "(ODCfilecache.ps1): No .FSD Files in Folder"}
 
 # Stop Console Output
 Stop-Transcript
