@@ -20,9 +20,9 @@ ________________________________________________________________________________
 * **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat.<br>
 __________________________________________________________________________________________
 
+* **[OfficeMRU.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeMRU.ps1)**: Powershell script to list the most recently used (MRU) files/folders in MS Office applications, from a user's NTuser.dat.<br>
+__________________________________________________________________________________________
+
 
    - Note1: *The files exported from the above scripts are set to be saved at the* `$env:TEMP` *folder.*
    - Note2: *The CentralTable.accdb points to the GUID in the FSF filename, and the FSF contains the GUID of the respective File Store Data (FSD) container.*
-
- 
-
