@@ -7,7 +7,7 @@ Exports output to .txt & .csv.<br>
 If you do not have *[ArsenalRecon's](https://arsenalrecon.com/)* **ODCrecon** press `Cancel` in the second File Open Window <br>
 
      
-     * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, and x32 for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.<br>
+     * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, or x32 driver for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.<br>
      * FSD Extraction requires *[ArsenalRecon's](https://arsenalrecon.com/)* ODCrecon tool.<br>
 __________________________________________________________________________________________
 
