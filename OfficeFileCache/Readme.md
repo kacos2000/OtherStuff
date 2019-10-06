@@ -17,10 +17,13 @@ ________________________________________________________________________________
   * **[OUC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OUC-FSF.ps1)**: Powershell standlone script to parse the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
-* **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat.<br>
+* **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
-* **[OfficeMRU.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeMRU.ps1)**: Powershell script to list the most recently used (MRU) files/folders in MS Office applications, from a user's NTuser.dat.<br>
+* **[OfficeMRU.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeMRU.ps1)**: Powershell script to list the most recently used (MRU) files/folders in MS Office applications, from a user's NTuser.dat. Requires to be run as Administrator<br>
+__________________________________________________________________________________________
+
+* **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in the MruServiceCache folder<br>
 __________________________________________________________________________________________
 
 
