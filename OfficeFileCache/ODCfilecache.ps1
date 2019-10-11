@@ -1,4 +1,14 @@
 ﻿# Get-ComputerInfo ## If needed
+
+if (Get-Module -ListAvailable -Name PSWriteHTML) {
+    Write-Host "$((Get-Module -ListAvailable -Name PSWriteHTML).name) Module exists"
+} 
+else {
+    Write-Host "'PSWriteHTML' Module does not exist - will try to install"
+    Install-Module PSWriteHTML -Force
+}
+
+
 $ErrorActionPreference = 'Stop'
 # Download Microsoft Access Database Engine 2016 Redistributable 
 # from https://www.microsoft.com/en-us/download/details.aspx?id=54920
@@ -7,16 +17,18 @@ $ErrorActionPreference = 'Stop'
 # ---> AccessDatabaseEngine_X64.exe /quiet  <-----
 $snow = Get-Date -Format FileDateTimeUniversal
 
-try{Get-OdbcDriver "Microsoft Access Driver (*.mdb, *.accdb)"}
-catch{
 
+
+try{Get-OdbcDriver "Microsoft Access Driver (*.mdb, *.accdb)" -Platform '64-bit' -ErrorAction Stop}
+catch{
 $msgBoxInput = [System.Windows.MessageBox]::Show('Would you like to Download and install the x64 
 Microsoft Access Database Engine 2016 Redistributable?
 If yes, please use "AccessDatabaseEngine_X64.exe /quiet" from an
 elevated cmd window to install.','Access Database Engine','YesNo','Error')
+$msgBoxInput
 switch  ($msgBoxInput) {
-'Yes' {Start-Process "https://www.microsoft.com/en-us/download/details.aspx?id=54920"; exit}
-'No'  {Write-warning "(OUCcentraltable.ps1):" ; Write-Host "User Cancelled" -f White; exit}
+'Yes' {Start-Process "https://www.microsoft.com/en-us/download/details.aspx?id=54920"}
+'No'  {Write-warning "(OUCcentraltable.ps1):" ; Write-Host "User Cancelled" -f White}
     }
 }
 
@@ -45,7 +57,7 @@ $ODCpath = Get-FileName -initialDirectory $Env:userprofile -Filter "ODCRecon* (*
 
 # Save Console Output
 $dir = "$($env:TEMP)\ODCfilecache-$($snow)"
-if(!(Test-Path -Path $dir )){New-Item -ItemType directory -Path $dir
+if(!(Test-Path -Path $dir )){New-Item -ItemType directory -Path $dir|Out-Null
                              Write-Host "'$($dir)' created" -f yellow}
 Start-Transcript -path "$($dir)\Console-$($snow).txt" -append -IncludeInvocationHeader
 
@@ -69,16 +81,17 @@ $tables = @(
 
 #Get FSF Information
 try{$fsf_files = Get-ChildItem ($filepath.trimEnd("CentralTable.accdb")) -Filter *.fsf
+write-host "$($fsf_files.count) FSF files found" -f White
 $output = @{}
-$output = foreach ($file in $fsf_files) {
-
-            
+$output = if($fsf_files.count -ge 1){foreach ($file in $fsf_files) {
+           
             [PSCustomObject]@{
             "FSF Name" = $file.Name
             "FSD Name" = ((Get-content -path "$($filepath.trimEnd("CentralTable.accdb"))$($file)" -Encoding Ascii).trimend(05).SubString(21)) -replace ('[\x00]', '') 
             "FSF Lastwritetime" = $file.Lastwritetime
                 }
             }
+        }
 # Display GUI with FSF Information
 # $output|Out-GridView -Title "FSF Information -> Number of FSF Files found ($($fsf_files.count))" -PassThru
 
@@ -175,8 +188,7 @@ $Masterfile = ForEach ($f in $results.Masterfile){
 $counter = $results.MasterFile.FileEntryFileID.Count # Number of entries in the Mastertable
 
 # GUI output of Masterfile table information
-$MasterFile|Out-GridView -Title "MasterFile table of $($filepath) - $($counter) entries" -PassThru 
-
+$MasterFile|Out-HtmlView  -Title "MasterFile table of $($filepath) - $($counter) entries" -FilePath "$($dir)\Masterfile.html" -Style display
 $conn.Close()
 
 
@@ -201,25 +213,25 @@ ForEach ($table in $tables)
 
 
 # If OSDrecon.exe is selected, runs it for a Summary Report & FSD extraction
-$odc_dir = "$($dir)\ODCrecon"
-write-host "ODCrecon output will be saved in '$($odc_dir)'" -f Yellow
-if(!(Test-Path -Path $odc_dir )){New-Item -ItemType directory -Path $odc_dir
-                                 Write-Host "'$($odc_dir)' created" -f yellow}
+$FSDpath = ($filepath.trimEnd("CentralTable.accdb"))
 try{
 $FSD_files = Get-ChildItem ($filepath.trimEnd("CentralTable.accdb")) -Filter *.FSD
 $fsdc = $FSD_files.count
-if($fsdc -ge 1){
-Write-Host "Found $($fsdc) FSD Files in Folder" -f White
-}
+if($fsdc -ge 1){Write-Host "Found $($fsdc) FSD Files in Folder" -f White}
+
 try{
+$odc_dir = "$($dir)\ODCrecon"
+write-host "ODCrecon output will be saved in '$($odc_dir)'" -f Yellow
+if(!(Test-Path -Path $odc_dir)|Out-Null){New-Item -ItemType directory -Path $odc_dir|Out-Null
+                                 Write-Host "'$($odc_dir)' created" -f yellow
 $exe = $ODCpath 
-$input = ($filepath.trimEnd("CentralTable.accdb"))
-$outpath = "$($odc_dir)"
+$input = $FSDpath
+$outpath = $odc_dir
 $mode = (0,1) # can be 0 or 1. 0 is for printing some basic document info to a summary. 1 is for document extraction.
 $ZipSig = 0   # can be 0 or 1. set value to 1 to tweak the identification of embedded ooxml documents. default is 0. 
 $Force = 0    # can be 0 or 1. when an FSD is missing the file header signature it is assumed invalid 
 if(test-path $ODCpath){foreach($p in $mode){& $exe /input:$input /OutputPath:$outpath /Mode:$p /ZipSig:$ZipSig /Force:$Force}
-    }
+    }}
 }
 catch{Write-warning "(ODCfilecache.ps1): Missing ODCrecon folder"}
 }
