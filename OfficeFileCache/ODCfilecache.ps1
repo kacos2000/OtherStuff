@@ -8,7 +8,6 @@ else {
     Install-Module PSWriteHTML -Force
 }
 
-
 $ErrorActionPreference = 'Stop'
 # Download Microsoft Access Database Engine 2016 Redistributable 
 # from https://www.microsoft.com/en-us/download/details.aspx?id=54920
@@ -17,9 +16,8 @@ $ErrorActionPreference = 'Stop'
 # ---> AccessDatabaseEngine_X64.exe /quiet  <-----
 $snow = Get-Date -Format FileDateTimeUniversal
 
-
-
-if(Get-OdbcDriver "Microsoft Access Driver (*.mdb, *.accdb)" -Platform '64-bit'){} else{ 
+if(Get-OdbcDriver "Microsoft Access Driver (*.mdb, *.accdb)" -Platform '64-bit'){Get-OdbcDriver "Microsoft Access Driver (*.mdb, *.accdb)" -Platform '64-bit'} 
+else{ 
 Add-Type -AssemblyName System.Windows.Forms
 $msgBoxInput = [System.Windows.Forms.MessageBox]::Show('Would you like to Download and install the x64 Microsoft Access Database Engine 2016 Redistributable?
 
@@ -32,7 +30,6 @@ switch  ($msgBoxInput) {
     }
 }
 
-#
 # Expected result:
 # Name      : Microsoft Access Driver (*.mdb, *.accdb)
 # Platform  : 64-bit
@@ -217,7 +214,36 @@ $FSDpath = ($filepath.trimEnd("CentralTable.accdb"))
 try{
 $FSD_files = Get-ChildItem ($filepath.trimEnd("CentralTable.accdb")) -Filter *.FSD
 $fsdc = $FSD_files.count
-if($fsdc -ge 1){Write-Host "Found $($fsdc) FSD Files in Folder" -f White}
+if($fsdc -ge 1){
+Write-Host "Found $($fsdc) FSD Files in Folder '$($FSDpath)'" -f White
+
+$fsdoutput = @{}
+$fsdoutput = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
+            $path = "$($filepath.trimEnd("CentralTable.accdb"))$($fsd)"
+            $Stream = New-Object IO.FileStream -ArgumentList (Resolve-Path $Path), 'Open', 'Read' 
+             # Note: Codepage 28591 returns a 1-to-1 char to byte mapping 
+            $encoding = [System.Text.Encoding]::GetEncoding('Unicode')
+            $StreamReader = New-Object IO.StreamReader -ArgumentList $Stream, $Encoding
+            $FSDcontent = $StreamReader.ReadToEnd() 
+            [regex]$regex = '([hH]ttps:\/\/)(\.)?(?!www)([\w\(\):%-_.,\[\]\s]+)'    
+            $fsd_url = [uri]::UnescapeDataString($regex.Matches($FSDcontent).Value)
+            $StreamReader.Close() 
+            $Stream.Close() 
+            
+                                  
+            [PSCustomObject]@{
+            "FSD FileName"      = $fsd.Name
+            "FSD Size"          = $fsd.length
+            "FSD Lastwritetime" = $fsd.Lastwritetime
+            "FSD url"           = $fsd_url
+                }
+            }
+       }
+
+# Saving FSD info to a csv
+Write-Host "Saving FSD Information to 'FSD-List-$($snow).csv' in $dir" -f Yellow
+$fsdoutput| Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\FSD List - $($snow).txt"
+}
 
 try{
 $odc_dir = "$($dir)\ODCrecon"
