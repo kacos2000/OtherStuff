@@ -94,7 +94,7 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             "FSD Size"          = "($($fsd.length/1024)Kb)"
             "FSD Size on disk"  = $fsd.length
             "FSD Size in File"  = $fsize
-            "FSD Lastwritetime" = $fsd.Lastwritetime
+            "FSD Lastwritetime" = get-date $fsd.Lastwritetime -f o
             "FEF Guid"          = $FSF_id.ToUpper()
             "FSD=FSF Guid"      = if($fsd.Name -match $FSF_id.ToUpper()){"Match"}else{}
             "FSD url"           = [uri]::UnescapeDataString($ur)
@@ -116,8 +116,8 @@ $dir = "$($env:TEMP)\ODC-FSD"
 if(!(Test-Path -Path $dir )){New-Item -ItemType directory -Path $dir
                              Write-Host "'$($dir)' created" -f yellow}
 Write-Host "Saving FSD Information to 'FSD-Info-$($snow).csv' in $dir" -f White
-#output#Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\FSD-Info-$($snow).txt" 
-#Invoke-Item $dir
+$output|Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\FSD-Info-$($snow).txt" 
+Invoke-Item $dir
 }
 
    
