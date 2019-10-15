@@ -11,7 +11,7 @@ if($foldername -ne $null)
 $Folder = $Folder +"\"
 
 Try{write-host "Selected: " (Get-Item $Folder)|out-null}
-Catch{Write-warning "(ODC-FSF.ps1):" ; Write-Host "User Cancelled" -f White; exit}
+Catch{Write-warning "(ODC-FSD.ps1):" ; Write-Host "User Cancelled" -f White; exit}
 
 try{$fsd_files = Get-ChildItem $Folder -Filter *.FSD
 write-host "$($fsd_files.count) FSD files found" -f White}
@@ -36,25 +36,24 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             $Stream.Close()
             
             # FSD Size
-            $Sfsd  = $FSDcontent.substring(172,4)
+            $Sfsd  = $FSDcontent.substring(172,4) # 0x00AC
             $sza   = [System.Text.Encoding]::getencoding(28591).GetBytes($sfsd)
             [array]::reverse($sza)
             $szb   = [System.BitConverter]::ToString($sza) -replace '-',''
             $fsize = [Convert]::TouInt64($szb,16)
             
             # Find the Url             
-            [regex]$regex  = "(\x68\x00\x74\x00\x74\x00\x70\x00\x73\x00\x3A\x00)"
+            [regex]$regex  = "(\x68\x00\x74\x00\x74\x00\x70\x00\x73\x00\x3A\x00)" # "https"
             # https://regex101.com/
-           
-            
+                       
             # url offset
-            $fsd_url = $regex.Matches($FSDcontent).value
-            $offurl = [Int64]($regex.Matches($FSDcontent).index)
+            $fsd_url = $regex.Matches($FSDcontent).groups[1].value
+            $offurl = [Int64]($regex.Matches($FSDcontent)[0].index)
             $urloffset = "0x00$("{0:X}" -f $offurl)"
                                  
             #Url-length
             $h1=$h2=$offs=$url_length=$null
-            $offS = $regex.Matches($FSDcontent).index -1 #if > FF -> 2byte LE (/2)
+            $offS = $regex.Matches($FSDcontent)[0].index -1 #if > FF -> 2byte LE (/2)
             $url_length = if([int][char]$FSDcontent.substring($offS,1) -le 15)
             {$h =$FSDcontent.substring($offS-1,2)
              $h1 =[System.Text.Encoding]::getencoding(28591).GetBytes($h)
