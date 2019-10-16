@@ -102,7 +102,7 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             "FSD=FSF Guid"      = $M                         # Match is an indication that the source of the FSD is Office 16+
             "FSD Size"          = "($($fsd.length/1024)Kb)"
             "FSD Size (Disk)"   = $fsd.length
-            "FSD Size (Dile)"   = $fsize                     
+            "FSD Size (File)"   = $fsize                     
             "F/D Size"          = if($fsize -lt $fsd.length){"F < D"}elseif($fsize -eq $fsd.length){"F = D"}else{"F > D"} # If Not the same, then the FSD is incomplete/corrupt etc
             "FSD Lastwritetime" = get-date $fsd.Lastwritetime -f o
             "Filename"          = [uri]::UnescapeDataString($name)
