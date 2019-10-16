@@ -1,4 +1,10 @@
-﻿# Show an Open File Dialog and return the file selected by the user
+﻿# Parses the "AppData\Local\Microsoft\Office\16.0\MruServiceCache" folder
+# which holds json files of available(Most Recently Used) office files
+# for each Office application.
+# Files are located in Onedrive or Sharepoint folders and not necessary available offline,
+# or accessed from current computer.
+
+# Show an Open File Dialog and return the file selected by the user
 Function Get-Folder($initialDirectory)
 
 {
@@ -14,7 +20,7 @@ Function Get-Folder($initialDirectory)
 		 }
 	        else  
         {
-            Write-Host "(PartitionDiagnostic.ps1):" -f Yellow -nonewline; Write-Host " User Cancelled" -f White
+            Write-Host "(MRUserviceCache.ps1):" -f Yellow -nonewline; Write-Host " User Cancelled" -f White
 			exit
         }
     return $Folder
@@ -31,7 +37,7 @@ $MRUserviceCache = foreach($c in $Fchildren){
                 
                     [PSCustomObject]@{
                                
-                                TimeStamp            = Get-date ($d.Timestamp) -f o
+                                TimeStamp            = if(!!$d.Timestamp){Get-date ($d.Timestamp) -f o}else{}
                                 FolderName           = $d.FolderName
                                 FileName             = $d.FileName
                                 Application          = $d.Application
