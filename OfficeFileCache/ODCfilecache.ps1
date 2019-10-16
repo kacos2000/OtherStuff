@@ -1,4 +1,6 @@
-﻿# ODCfilecache.ps1
+﻿#Requires -RunAsAdministrator
+
+# ODCfilecache.ps1
 # Gets information from MS Office 'OfficeFileCache'folder files:
 #       *  CentralTable.accdb database
 #       *  FSF files
