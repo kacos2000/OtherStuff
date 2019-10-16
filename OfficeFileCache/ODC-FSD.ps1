@@ -1,6 +1,4 @@
-﻿# Point the script to a folder containing at least one FSD file
-
-# Show an Open File Dialog and return the file selected by the user
+﻿# Show an Open File Dialog and return the file selected by the user
 $handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
 $getfolder = New-Object -ComObject Shell.Application 
 $foldername = $getfolder.BrowseForFolder([int]$handle,"ODC-FSD.ps1: Select a folder containing FSD files", 0x018230, 0)
@@ -18,12 +16,12 @@ Catch{Write-warning "(ODC-FSD.ps1):" ; Write-Host "User Cancelled" -f White; exi
 try{$fsd_files = Get-ChildItem $Folder -Filter *.FSD
 write-host "$($fsd_files.count) FSD files found" -f White}
 Catch{Write-warning "(ODC-FSD.ps1):" ; Write-Host "No FSD files found in $($Folder)" -f White; exit}
-$enc = [System.Text.Encoding]::Unicode
-
 
 $output = @{}
 $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
 
+            if($fsd.name -ne "FSD-CNRY.FSD"){
+            
             $StreamReader = $FSDcontent=$Stream=$urloffset=$Sfsd=$url=$fsd_url=$off=$urldec=$guid=$null
 
             # Read each FSD
@@ -48,7 +46,7 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
                        
             # url offset
             if([string]::IsNullOrEmpty($regex.Matches($FSDcontent).value)){
-            $name=$ur=$urloffset=$len=$FSF_id=$M=$FSF_id=''
+            $name=$ur=$urloffset=$FSF_id="-"
             }  else  {
             $fsd_url = $regex.Matches($FSDcontent).groups[1].value
             $offurl = [Int64]($regex.Matches($FSDcontent)[0].index)
@@ -56,8 +54,8 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
                                  
             #Url-length
             $h1=$h2=$offs=$url_length=$null
-            $offS = $regex.Matches($FSDcontent)[0].index -1 
-            $url_length = if([int][char]$FSDcontent.substring($offS,1) -le 15) # 15 -> up to 2047 char url
+            $offS = $regex.Matches($FSDcontent)[0].index -1 #if > FF -> 2byte LE (/2)
+            $url_length = if([int][char]$FSDcontent.substring($offS,1) -le 15)
             {$h =$FSDcontent.substring($offS-1,2)
              $h1 =[System.Text.Encoding]::getencoding(28591).GetBytes($h)
              [array]::reverse($h1)
@@ -70,7 +68,6 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             $url = $FSDcontent.substring($offurl,$url_length -1)
             $r   = [System.Text.Encoding]::getencoding(28591).GetBytes($url)
             $ur  = [System.Text.Encoding]::Unicode.GetString($r)
-            $len = "$($url_length) ($([int][char]$FSDcontent.substring($offS,1)))"
             $name = Split-Path $ur -Leaf
 
             ##Guid
@@ -93,42 +90,36 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             $G5 = $Wq.Substring(30).split('-')
             $Guid += $G5 -join ''
             $FSF_id = [System.Guid]::Parse($Guid).guid
-            $M = if($fsd.Name -match $FSF_id){"Match"}else{}
             }
+            
                                   
             [PSCustomObject]@{
             "FSD FileName"      = $fsd.Name
-            "FSF Guid"          = $FSF_id.ToUpper()
-            "FSD=FSF Guid"      = $M                         # Match is an indication that the source of the FSD is Office 16+
-            "FSD Size"          = "($($fsd.length/1024)Kb)"
-            "FSD Size (Disk)"   = $fsd.length
-            "FSD Size (Dile)"   = $fsize                     
-            "F/D Size"          = if($fsize -lt $fsd.length){"F < D"}elseif($fsize -eq $fsd.length){"F = D"}else{"F > D"} # If Not the same, then the FSD is incomplete/corrupt etc
-            "FSD Lastwritetime" = get-date $fsd.Lastwritetime -f o
             "Filename"          = [uri]::UnescapeDataString($name)
+            "FSD Size (Disk)"   = $fsd.length
+            "FSD Size (Dile)"   = $fsize
+            "F/D"               = if($fsize -lt $fsd.length){"F < D"}elseif($fsize -eq $fsd.length){"F = D"}else{"F > D"}
+            "FSD Lastwritetime" = get-date $fsd.Lastwritetime -f o # Examiner time + timezone
             "FSD url"           = [uri]::UnescapeDataString($ur)
-            "Url length"        = $len
-            "FSD url offset"    = $urloffset
-            "RegEx #"           = "$fsd_url ($($regex.Matches($FSDcontent).count))"
+            "FSF Guid"          = "{$($FSF_id.ToUpper())}"
             "FSD #MD5"          = (Get-FileHash -Algorithm MD5 $fsd.fullname).hash
-            "FSD #SHA256"       = (Get-FileHash -Algorithm SHA256 $fsd.fullname).hash
             }
             
           [gc]::Collect()
             
         }
     }
-
-$output|Out-GridView -title "FSD information - ($($fsd_files.count)) FSD files found - [processed $($output.Filename.Count)]" -PassThru
+}
+$output|Out-GridView -title "FSD information - ($($fsd_files.count)) FSD files found - [$($output.Filename.Count) results]" -PassThru
 
 # Saving output to a csv
 if($output.count -ge1){$snow = Get-Date -Format FileDateTimeUniversal
 $dir = "$($env:TEMP)\ODC-FSD"
 if(!(Test-Path -Path $dir )){New-Item -ItemType directory -Path $dir
                              Write-Host "'$($dir)' created" -f yellow}
-Write-Host "Saving FSD Information to 'FSD-Info-$($snow).csv' in $dir" -f White
-$output|Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\FSD-Info-$($snow).txt" 
-Invoke-Item $dir
+Write-Host "Saving FSD Information to 'FSD-List-$($snow).csv' in $dir" -f White
+#output#Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\FSD-List-$($snow).txt" 
+#Invoke-Item $dir
 }
 
    

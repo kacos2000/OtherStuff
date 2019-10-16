@@ -1,5 +1,14 @@
-﻿# Get-ComputerInfo ## If needed
+﻿# ODCfilecache.ps1
+# Gets information from MS Office 'OfficeFileCache'folder files:
+#       *  CentralTable.accdb database
+#       *  FSF files
+#       *  FSD Files
+#       *  and if ArsenalRecon.com 's ODCrecon64.exe is available extract FSD files
+#
+# 2019/10 - Costas Katsavounidis 
+#
 
+# Check & if needed install module PSWriteHTML
 if (Get-Module -ListAvailable -Name PSWriteHTML) {
     Write-Host "$((Get-Module -ListAvailable -Name PSWriteHTML).name) Module exists"
 } 
@@ -14,7 +23,7 @@ $ErrorActionPreference = 'Stop'
 # and install via cmd terminal with the "/quiet" switch.
 # ---> For use with 64-bit PowerShell:  <-----
 # ---> AccessDatabaseEngine_X64.exe /quiet  <-----
-$snow = Get-Date -Format FileDateTimeUniversal
+
 
 if(Get-OdbcDriver "Microsoft Access Driver (*.mdb, *.accdb)" -Platform '64-bit'){Get-OdbcDriver "Microsoft Access Driver (*.mdb, *.accdb)" -Platform '64-bit'} 
 else{ 
@@ -35,6 +44,15 @@ switch  ($msgBoxInput) {
 # Platform  : 64-bit
 # Attribute : {Driver, APILevel, FileExtns, FileUsage...}
 
+
+# Save Console Output
+$snow = Get-Date -Format FileDateTimeUniversal
+$sn=Get-Date
+$dir = "$($env:TEMP)\ODCfilecache-$($snow)"
+if(!(Test-Path -Path $dir )){New-Item -ItemType directory -Path $dir|Out-Null
+                             Write-Host "'$($dir)' created" -f yellow}
+Start-Transcript -path "$($dir)\PSConsole.txt" -append -IncludeInvocationHeader
+
 Function Get-FileName($initialDirectory, $Title ,$Filter)
 {  
 [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") |Out-Null
@@ -52,11 +70,7 @@ $filepath = Get-FileName -initialDirectory $DesktopPath -Filter "CentralTable (*
 # Open second Window to select ODCRecon executable.
 $ODCpath = Get-FileName -initialDirectory $Env:userprofile -Filter "ODCRecon64.* (*.exe)|*.exe" -Title "Select Arsenal Recon's OSDrecon64.exe"
 
-# Save Console Output
-$dir = "$($env:TEMP)\ODCfilecache-$($snow)"
-if(!(Test-Path -Path $dir )){New-Item -ItemType directory -Path $dir|Out-Null
-                             Write-Host "'$($dir)' created" -f yellow}
-Start-Transcript -path "$($dir)\Console-$($snow).txt" -append -IncludeInvocationHeader
+
 
 Try{write-host "Selected: " (Get-Item $Filepath)|out-null}
 Catch{Write-warning "(ODCfilecache.ps1):" ; Write-Host "User Cancelled" -f White; exit}
@@ -72,20 +86,18 @@ $tables = @(
         "Subcache" 
         )
 
-# Metadata can also be found in the user's NTUser.dat at
-# "SOFTWARE\Microsoft\Office\15.0\Common\Roaming\Identities\xxxxxxxxx_LiveId\Settings\1133\{00000000-0000-0000-0000-000000000000}\ListItems\"
-# "SOFTWARE\Microsoft\Office\16.0\Common\Roaming\Identities\xxxxxxxxx_LiveId\Settings\1110\{00000000-0000-0000-0000-000000000000}\ListItems\"
 
 #Get FSF Information
-try{$fsf_files = Get-ChildItem ($filepath.trimEnd("CentralTable.accdb")) -Filter *.fsf
+$fsf_files = Get-ChildItem ($filepath.trimEnd("CentralTable.accdb")) -Filter *.fsf
+if(!!$fsf_files){
 write-host "$($fsf_files.count) FSF files found" -f White
 $output = @{}
-$output = if($fsf_files.count -ge 1){foreach ($file in $fsf_files) {
-           
-            [PSCustomObject]@{
-            "FSF Name" = $file.Name
-            "FSD Name" = ((Get-content -path "$($filepath.trimEnd("CentralTable.accdb"))$($file)" -Encoding Ascii).trimend(05).SubString(21)) -replace ('[\x00]', '') 
-            "FSF Lastwritetime" = $file.Lastwritetime
+$output = if($fsf_files.count -ge 1){
+            foreach ($file in $fsf_files) {
+              [PSCustomObject]@{
+                "FSF Name"          = $file.Name
+                "FSD Name"          = ((Get-content -path $file.FullName -Encoding Ascii).trimend(05).SubString(21)) -replace ('[\x00]', '') 
+                "FSF Lastwritetime" = get-date $file.Lastwritetime -f o
                 }
             }
         }
@@ -94,10 +106,10 @@ $output = if($fsf_files.count -ge 1){foreach ($file in $fsf_files) {
 
 # Save output to CSV
 if($output.count -ge1){
-Write-Host "Saving FSF Information to 'FSF List - $($snow).txt' in $dir" -f White
-$output|Export-Csv -Delimiter "|" -Encoding UTF8 -Path "$($dir)\FSF List - $($snow).txt" -NoTypeInformation}
+Write-Host "Saving FSF Information to 'FSF List.txt' in $dir" -f White
+$output|Export-Csv -Delimiter "|" -Encoding UTF8 -Path "$($dir)\FSF List.txt" -NoTypeInformation}
 }
-Catch{Write-warning "(ODCfilecache.ps1):" ; Write-Host "No FSF Files in Folder" -f White}
+else{Write-warning "(ODCfilecache.ps1):" ; Write-Host "No FSF Files in Folder" -f White}
 
 # Parsing the Database
 $results = @{}
@@ -161,6 +173,7 @@ $Masterfile = ForEach ($f in $results.Masterfile){
                         "SubcacheID (GUID)" = $f.SubcacheID.Guid.ToUpper()
                         DocumentLastModifiedTime = if($DocLastMod-gt 0){Get-Date ([DateTime]::FromFileTime($DocLastMod)) -Format o}else{}
                         DocumentLastAccessedTime = if($DocLastAcc-gt 0){Get-Date ([DateTime]::FromFileTime($DocLastAcc)) -Format o}else{}
+                        Filename = Split-Path ([uri]::UnescapeDataString($f.DisplayUrl.ToString())) -Leaf
                         DisplayUrl = [uri]::UnescapeDataString($f.DisplayUrl.ToString()) #converted web strings for easier reading
                         DocumentUserTypedUrl = [uri]::UnescapeDataString($f.DocumentUserTypedUrl)
                         FileStoreFileSize = [Convert]::ToInt64(([System.BitConverter]::ToString($f.FileStoreFileSize) -replace "-",""),16)
@@ -178,7 +191,6 @@ $Masterfile = ForEach ($f in $results.Masterfile){
                         MetaLastSuccessfulDownloadTime = if($MetaLaSuDo-gt 0){Get-Date ([DateTime]::FromFileTime($MetaLaSuDo)) -Format o}else{}
                         EditLastDownloadTime = if($EditLaDo-gt 0){Get-Date ([DateTime]::FromFileTime($EditLaDo)) -Format o}else{}
                         EditLastSuccessfulDownloadTime = if($EditLaSuDo-gt 0){Get-Date ([DateTime]::FromFileTime($EditLaSuDo)) -Format o}else{}
-                                            
             }
 }
 
@@ -188,68 +200,138 @@ $counter = $results.MasterFile.FileEntryFileID.Count # Number of entries in the 
 $MasterFile|Out-HtmlView  -Title "MasterFile table of $($filepath) - $($counter) entries" -FilePath "$($dir)\Masterfile.html" -Style display
 $conn.Close()
 
-
 # Saving data to file(s) 
-"Database:`n'$($filepath)'`n`n"|Out-File -FilePath "$($dir)\CentralTable - $($snow).txt"
+"Database:`n'$($filepath)'`n`n"|Out-File -FilePath "$($dir)\CentralTable Data.txt"
 
 ForEach ($table in $tables)
 {
     if($table -eq "Masterfile")
     {
     # Saving the decoded data from the Masterfile table to a csv
-    Write-Host "Saving Table 'MasterFile' to (csv): 'MasterFile - $($snow).txt' in $dir" -f Yellow
-    $MasterFile| Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\MasterFile - $($snow).txt"
+    Write-Host "Saving Table 'MasterFile'" -f Yellow
+    $MasterFile| Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\MasterFile.txt"
     }
     else{
     # Saving the other tables to a txt file
-    Write-Host "Saving Table '$($table)' to 'CentralTable - $($snow).txt' in $dir" -f Cyan
-    "********** Table $($table) **********"|Out-File  -Append -FilePath "$($dir)\CentralTable - $($snow).txt"
-    $results[$table] |Out-File  -Append -FilePath "$($dir)\CentralTable - $($snow).txt"
+    Write-Host "Saving Table '$($table)'" -f Cyan
+    "********** Table $($table) **********"|Out-File  -Append -FilePath "$($dir)\CentralTable Data.txt"
+    $results[$table] |Out-File  -Append -FilePath "$($dir)\CentralTable Data.txt"
     }
 }
 
-
-# If https://arsenalrecon.com/ - OSDrecon64.exe is selected, runs it for a Summary Report & FSD extraction
+# Parsing FSD Files for Information
 $FSDpath = ($filepath.trimEnd("CentralTable.accdb"))
 try{
 $FSD_files = Get-ChildItem ($filepath.trimEnd("CentralTable.accdb")) -Filter *.FSD
 $fsdc = $FSD_files.count
 if($fsdc -ge 1){
-Write-Host "Found $($fsdc) FSD Files in Folder '$($FSDpath)'" -f White
+Write-Host "$($fsdc) FSD Files found" -f White
 
 $fsdoutput = @{}
 $fsdoutput = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
-            $path = "$($filepath.trimEnd("CentralTable.accdb"))$($fsd)"
-            $Stream = New-Object IO.FileStream -ArgumentList (Resolve-Path $Path), 'Open', 'Read' 
-             # Note: Codepage 28591 returns a 1-to-1 char to byte mapping 
-            $encoding = [System.Text.Encoding]::GetEncoding('Unicode')
-            $StreamReader = New-Object IO.StreamReader -ArgumentList $Stream, $Encoding
-            $FSDcontent = $StreamReader.ReadToEnd() 
-            [regex]$regex = '([hH]ttps:\/\/)(\.)?(?!www)([\w\(\):%-_.,\[\]\s]+)'    
-            $fsd_url = [uri]::UnescapeDataString($regex.Matches($FSDcontent).Value)
-            $StreamReader.Close() 
-            $Stream.Close() 
+
+            if($fsd.name -ne "FSD-CNRY.FSD"){
             
-                                  
-            [PSCustomObject]@{
-            "FSD FileName"      = $fsd.Name
-            "FSD Size"          = $fsd.length
-            "FSD Lastwritetime" = $fsd.Lastwritetime
-            "FSD url"           = $fsd_url
-                }
+            $StreamReader = $FSDcontent=$Stream=$urloffset=$Sfsd=$url=$fsd_url=$off=$urldec=$guid=$null
+
+            # Read each FSD
+            $path         = $fsd.FullName
+            $Stream       = New-Object IO.FileStream -ArgumentList (Resolve-Path $Path), 'Open', 'Read' 
+            $encoding     = [System.Text.Encoding]::GetEncoding(28591) 
+            $StreamReader = New-Object IO.StreamReader -ArgumentList $Stream, $Encoding 
+            $FSDcontent   = $StreamReader.ReadToEnd()
+            $StreamReader.Close() 
+            $Stream.Close()
+            
+            # FSD Size
+            $Sfsd  = $FSDcontent.substring(172,4) # 0x00AC
+            $sza   = [System.Text.Encoding]::getencoding(28591).GetBytes($sfsd)
+            [array]::reverse($sza)
+            $szb   = [System.BitConverter]::ToString($sza) -replace '-',''
+            $fsize = [Convert]::TouInt64($szb,16)
+            
+            # Find the Url             
+            [regex]$regex  = "(\x68\x00\x74\x00\x74\x00\x70\x00\x73\x00\x3A\x00)" # "https"
+            # https://regex101.com/
+                       
+            # url offset
+            if([string]::IsNullOrEmpty($regex.Matches($FSDcontent).value)){
+            $name=$ur=$urloffset=$FSF_id="-"
+            }  else  {
+            $fsd_url = $regex.Matches($FSDcontent).groups[1].value
+            $offurl = [Int64]($regex.Matches($FSDcontent)[0].index)
+            $urloffset = "0x00$("{0:X}" -f $offurl)"
+                                 
+            #Url-length
+            $h1=$h2=$offs=$url_length=$null
+            $offS = $regex.Matches($FSDcontent)[0].index -1 #if > FF -> 2byte LE (/2)
+            $url_length = if([int][char]$FSDcontent.substring($offS,1) -le 15)
+            {$h =$FSDcontent.substring($offS-1,2)
+             $h1 =[System.Text.Encoding]::getencoding(28591).GetBytes($h)
+             [array]::reverse($h1)
+             $h2 = [System.BitConverter]::ToString($h1) -replace '-',''
+             ([Convert]::ToInt32($h2,16))/2
             }
-       }
+            else{[int][char]$FSDcontent.substring($offS,1)}
+            
+            #url
+            $url = $FSDcontent.substring($offurl,$url_length -1)
+            $r   = [System.Text.Encoding]::getencoding(28591).GetBytes($url)
+            $ur  = [System.Text.Encoding]::Unicode.GetString($r)
+            $name = Split-Path $ur -Leaf
+
+            ##Guid
+            if($url_length -in (15..255))
+                {$G = [System.Text.Encoding]::getencoding(28591).GetBytes($FSDcontent.substring($offurl -17,16))}
+                else
+                {$G = [System.Text.Encoding]::getencoding(28591).GetBytes($FSDcontent.substring($offurl -18,16))}
+            $Wq = [System.BitConverter]::ToString($G) #-replace '-00','' #-replace "-",''
+            $G1 = $Wq.Substring(0,12).split('-')
+            [array]::Reverse($G1)
+            $Guid += $G1 -join ''
+            $G2 = $Wq.Substring(12,5).split('-')
+            [array]::Reverse($G2)
+            $Guid += $G2 -join ''
+            $G3 = $Wq.Substring(18,5).split('-')
+            [array]::Reverse($G3)
+            $Guid += $G3 -join ''
+            $G4 = $Wq.Substring(24,5).split('-')
+            $Guid += $G4 -join ''
+            $G5 = $Wq.Substring(30).split('-')
+            $Guid += $G5 -join ''
+            $FSF_id = [System.Guid]::Parse($Guid).guid
+            }
+         [PSCustomObject]@{
+            "FSD FileName"      = $fsd.Name
+            "FSF Guid"          = "{$($FSF_id.ToUpper())}"
+            "Filename"          = [uri]::UnescapeDataString($name)
+            "FSD Size (Disk)"   = $fsd.length
+            "FSD Size (Dile)"   = $fsize
+            "F/D"               = if($fsize -lt $fsd.length){"F < D"}elseif($fsize -eq $fsd.length){"F = D"}else{"F > D"}
+            "FSD Lastwritetime" = get-date $fsd.Lastwritetime -f o # Examiner time + timezone
+            "FSD url"           = [uri]::UnescapeDataString($ur)
+            "FSD #MD5"          = (Get-FileHash -Algorithm MD5 $fsd.fullname).hash
+            }
+          [gc]::Collect()
+        }
+    }
+}
+# popup display of FSD Information
+$fsdoutput|Out-GridView -title "FSD information - ($($fsd_files.count)) FSD files found - [$($output.Filename.Count) results]" -PassThru
 
 # Saving FSD info to a csv
-Write-Host "Saving FSD Information to 'FSD-List-$($snow).csv' in $dir" -f Yellow
-$fsdoutput| Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$($dir)\FSD List - $($snow).txt"
+Write-Host "Saving FSD Information to 'FSD-List.txt' in $dir" -f White
+$fsdoutput| Export-Csv -Delimiter "|" -Encoding UTF8 -Path "$($dir)\FSD List.txt" -NoTypeInformation 
 }
 
-try{
-$odc_dir = "$($dir)\ODCrecon"
-write-host "ODCrecon output will be saved in '$($odc_dir)'" -f Yellow
-if(!(Test-Path -Path $odc_dir)){New-Item -ItemType directory -Path $odc_dir|Out-Null
-                                 Write-Host "'$($odc_dir)' created" -f yellow
+# If https://arsenalrecon.com/ - OSDrecon64.exe is selected, runs it for a Summary Report & FSD extraction
+try{$odc_dir = "$($dir)\ODCrecon"
+if(!(Test-Path -Path $odc_dir))
+       {write-host "ODCrecon output will be saved in '$($odc_dir)'" -f Yellow
+        New-Item -ItemType directory -Path $odc_dir|Out-Null
+        Write-Host "'$($odc_dir)' created" -f yellow
+
+#ODCrecon Parameters:
 $exe = $ODCpath 
 $input = $FSDpath
 $outpath = $odc_dir
@@ -257,7 +339,7 @@ $mode = (0,1) # can be 0 or 1. 0 is for printing some basic document info to a s
 $ZipSig = 0   # can be 0 or 1. set value to 1 to tweak the identification of embedded ooxml documents. default is 0. 
 $Force = 0    # can be 0 or 1. when an FSD is missing the file header signature it is assumed invalid 
 if(test-path $ODCpath){foreach($p in $mode){& $exe /input:$input /OutputPath:$outpath /Mode:$p /ZipSig:$ZipSig /Force:$Force}
-    }}
+    }} 
 }
 catch{Write-warning "(ODCfilecache.ps1): Missing ODCrecon folder"}
 }
@@ -265,5 +347,10 @@ catch{Write-warning "(ODCfilecache.ps1): No .FSD Files in Folder"}
 
 # Stop Console Output
 Stop-Transcript
-# open Temp folder to view saved output files
-Invoke-Item $dir
+$tn = NEW-TIMESPAN –Start $sn 
+$msgBoxInput = [System.Windows.Forms.MessageBox]::Show("
+`n$(Get-date -f F)
+Total Processing time: $Tn`nOutput was saved in: $dir
+`nThank you for playing :)",'ODCfilecache.ps1','OK','Information','Button1')
+switch  ($msgBoxInput){'OK' {Invoke-Item $dir; EXIT}}
+# The_End
