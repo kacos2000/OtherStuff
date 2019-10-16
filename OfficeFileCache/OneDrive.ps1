@@ -22,7 +22,7 @@ Catch{Write-warning "(OneDrive.ps1):" ; Write-Host "User Cancelled" -f White; ex
 $ErrorActionPreference = "Stop"
 Try{$before = (Get-FileHash $File -Algorithm SHA256).Hash}
 Catch{
-        Write-Host "(ODCreg.ps1):" -f Yellow -nonewline; Write-Host " User Cancelled" -f White
+        Write-Host "(OneDrive.ps1):" -f Yellow -nonewline; Write-Host " User Cancelled" -f White
 		[gc]::Collect()		
 		reg unload HKEY_LOCAL_MACHINE\Temp 
 		exit
@@ -59,7 +59,7 @@ $OneDrive = @(foreach($a in $Accounts){
             $ECSConfigurationMaxAge      = (get-itemproperty -path $dpath).ECSConfigurationMaxAge #Seconds (?)
             $NamespaceRootId             = (get-itemproperty -path $dpath).NamespaceRootId
 
-[PSCustomObject]@{
+            [PSCustomObject]@{
             Account_Type                 = $Type
             UserEmail                    = $UserEmail
             UserFolder                   = $UserFolder
