@@ -27,7 +27,7 @@ ________________________________________________________________________________
   * **[OfficeMRU.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeMRU.ps1)**: Powershell script to list the most recently used (MRU) files/folders in MS Office applications, from a user's NTuser.dat. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
-  * **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in the MruServiceCache folder *(Office16 only(?))*<br>
+  * **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in the MruServiceCache folder *(Office16+ only)*<br>
 __________________________________________________________________________________________
 
 
