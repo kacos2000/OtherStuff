@@ -14,18 +14,22 @@ ________________________________________________________________________________
   * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint $ related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
-  * **[ODC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSF.ps1)**: Powershell standlone script to parse the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
+  * **[ODC-FSD.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSD.ps1)**: Powershell script to parse the FSD files in an OfficeFileCache folder and get FSD size and filename & url of the embedded file. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
-* **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat. Requires to be run as Administrator<br>
+  * **[ODC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSF.ps1)**: Powershell script to parse      
+  the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
-* **[OfficeMRU.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeMRU.ps1)**: Powershell script to list the most recently used (MRU) files/folders in MS Office applications, from a user's NTuser.dat. Requires to be run as Administrator<br>
+  * **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
-* **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in the MruServiceCache folder<br>
+  * **[OfficeMRU.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeMRU.ps1)**: Powershell script to list the most recently used (MRU) files/folders in MS Office applications, from a user's NTuser.dat. Requires to be run as Administrator<br>
+__________________________________________________________________________________________
+
+  * **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in the MruServiceCache folder *(Office16 only(?))*<br>
 __________________________________________________________________________________________
 
 
-   - Note1: *The files exported from the above scripts are set to be saved at the* `$env:TEMP` *folder.*
+   - Note1: *The output exported from the above scripts are set to be saved as (csv) .txt files in the* `$env:TEMP` *folder.*
    - Note2: *The CentralTable.accdb points to the GUID in the FSF filename, and the FSF contains the GUID of the respective File Store Data (FSD) container.*
