@@ -308,7 +308,7 @@ $fsdoutput = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             "FSF Guid"          = "{$($FSF_id.ToUpper())}"
             "Filename"          = [uri]::UnescapeDataString($name)
             "FSD Size (Disk)"   = $fsd.length
-            "FSD Size (Dile)"   = $fsize
+            "FSD Size (File)"   = $fsize
             "F/D"               = if($fsize -lt $fsd.length){"F < D"}elseif($fsize -eq $fsd.length){"F = D"}else{"F > D"}
             "FSD Lastwritetime" = get-date $fsd.Lastwritetime -f o # Examiner time + timezone
             "FSD url"           = [uri]::UnescapeDataString($ur)
@@ -353,6 +353,6 @@ $tn = NEW-TIMESPAN –Start $sn
 $msgBoxInput = [System.Windows.Forms.MessageBox]::Show("
 `n$(Get-date -f F)
 Total Processing time: $Tn`nOutput was saved in: $dir
-`nThank you for playing :)",'ODCfilecache.ps1','OK','Information','Button1')
+`n :)",'ODCfilecache.ps1','OK','Information','Button1')
 switch  ($msgBoxInput){'OK' {Invoke-Item $dir; EXIT}}
 # The_End
