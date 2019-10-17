@@ -1,4 +1,6 @@
-﻿# Show an Open File Dialog and return the file selected by the user
+﻿# Parses FSF files in a folder and lists the embedded GUID of the respective FSD file.
+
+# Show an Open File Dialog and return the file selected by the user
 Function Get-Folder($initialDirectory)
 {
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms")|Out-Null
@@ -16,20 +18,27 @@ Function Get-Folder($initialDirectory)
 $F = Get-Folder
 $Folder = $F +"\"
 
-Try{write-host "Selected: " (Get-Item $Folder)|out-null}
-Catch{Write-warning "(ODC-FSF.ps1):" ; Write-Host "User Cancelled" -f White; exit}
-
+# Get FSF Information
+Try{write-host "Selected: " (Get-Item $Folder)|out-null
 $files = Get-ChildItem $Folder -Filter *.fsf
+
+if(![string]::IsNullOrEmpty($files)){
 
 $output = foreach ($file in $files) {
 
             [PSCustomObject]@{
-            "FSF Name" = $file.Name
-            "FSD Name" = ((Get-content -path "$($folder)$($file)" -Encoding Ascii).trimend(05).SubString(21)) -replace ('[\x00]', '') 
-            "FSF Lastwritetime" = $file.Lastwritetime
+            "FSF Name"          = $file.Name
+            "FSD Name"          = ((Get-content -path "$($folder)$($file)" -Encoding Ascii).trimend(05).SubString(21)) -replace ('[\x00]', '') 
+            "FSF Lastwritetime" = get-date $file.Lastwritetime -o
             }
 }
 $output|Out-GridView -Title "FSF Information - ($($output.count)) FSF files processed" -PassThru
+}
+else{Write-warning "(ODC-FSF.ps1):" ; Write-Host "No FSF files found" -f White; exit}
+}
+Catch{Write-warning "(ODC-FSF.ps1):" ; Write-Host "User Cancelled" -f White; exit}
+
+
 
 # Saving output to a csv
 if($output.count -ge1){$snow = Get-Date -Format FileDateTimeUniversal
