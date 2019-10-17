@@ -16,7 +16,7 @@ ________________________________________________________________________________
      * If ODCrecon is used, it requires to be run as an Administrator<br>
 __________________________________________________________________________________________
 
-  * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint $ related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
+  * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint & related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
   * **[ODC-FSD.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSD.ps1)**: Powershell script to parse the OfficeFileCache FSD files in a folder and get FSD size and filename & url of the embedded file. Exports output to a .txt file.<br>
