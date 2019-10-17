@@ -97,7 +97,7 @@ $output = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             "FSD FileName"      = $fsd.Name
             "Filename"          = [uri]::UnescapeDataString($name)
             "FSD Size (Disk)"   = $fsd.length
-            "FSD Size (Dile)"   = $fsize
+            "FSD Size (File)"   = $fsize
             "F/D"               = if($fsize -lt $fsd.length){"F < D"}elseif($fsize -eq $fsd.length){"F = D"}else{"F > D"}
             "FSD Lastwritetime" = get-date $fsd.Lastwritetime -f o # Examiner time + timezone
             "FSD url"           = [uri]::UnescapeDataString($ur)
