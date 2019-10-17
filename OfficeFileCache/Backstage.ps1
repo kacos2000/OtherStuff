@@ -89,7 +89,7 @@ $Backstage = foreach($c in $Fchildren){
 # GUI output 
 $Backstage|Out-GridView -title "BackstageInAppNavCache - $($Backstage.count) entries found" -PassThru
 
-Saving the decoded data to a csv
+#Saving the decoded data to a csv
 if($Backstage.count -ge1){$snow = Get-Date -Format FileDateTimeUniversal
 $dir = "$($env:TEMP)\BackstageInAppNavCache"}
 if(!(Test-Path -Path $dir )){New-Item -ItemType directory -Path $dir
