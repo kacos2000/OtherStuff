@@ -2,11 +2,16 @@
 ## Office Upload Center
 __________________________________________________________________________________________
 
-  * **[ODCfilecache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCfilecache.ps1)**: Powershell script to parse CentralTable.accdb Access db *(filenames, GUIDs, Timestamps)*, FSD & FSF files from an OfficeFileCache folder. 
-Exports output to .txt & .csv.<br> 
-If you do not have *[ArsenalRecon's](https://arsenalrecon.com/)* **ODCrecon** press `Cancel` in the second File Open Window <br>
+  * **[ODCfilecache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCfilecache.ps1)**: Powershell script to parse: <br>  
+             1. CentralTable.accdb Access db - *(filenames, GUIDs, Timestamps, Tables ..)*, <br>
+             2. FSD files - *embedded FSD size and FSF Guid plus filename & url of the embedded file*<br>
+             3. FSF files - *embedded FSD GUID* <br>
+             4. Extract contents *(MS Office ooxml documents)* from FSD files *(ODCrecon)*<br>
+    
+    from an OfficeFileCache folder. Exports output to .txt & .csv.<br>
+    If you do not have *[ArsenalRecon's](https://arsenalrecon.com/)* **ODCrecon** press `Cancel` in the second File Open Window <br>
      
-     * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, or x32 driver for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch.<br>
+     * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) (*script does a check*). If needed, you should install the x64 driver for 64-bit Windows, or x32 driver for 32-bit Windows from an elevated cmd prompt, using the `/Quiet` switch eg:  `..\path\..\AccessDatabaseEngine_X64.exe /Quiet`<br>
      * FSD Extraction requires *[ArsenalRecon's](https://arsenalrecon.com/)* ODCrecon tool.<br>
      * If ODCrecon is used, it requires to be run as an Administrator<br>
 __________________________________________________________________________________________
@@ -14,11 +19,10 @@ ________________________________________________________________________________
   * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint $ related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
-  * **[ODC-FSD.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSD.ps1)**: Powershell script to parse the FSD files in an OfficeFileCache folder and get FSD size and filename & url of the embedded file. Exports output to a .txt file.<br>
+  * **[ODC-FSD.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSD.ps1)**: Powershell script to parse the OfficeFileCache FSD files in a folder and get FSD size and filename & url of the embedded file. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
-  * **[ODC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSF.ps1)**: Powershell script to parse      
-  the FSF files in an OfficeFileCache folder. Exports output to a .txt file.<br>
+  * **[ODC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSF.ps1)**: Powershell script to parse the OfficeFileCache FSF files in a folder and get the embedded FSD GUID. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
   * **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat. Requires to be run as Administrator<br>
@@ -27,7 +31,11 @@ ________________________________________________________________________________
   * **[OfficeMRU.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeMRU.ps1)**: Powershell script to list the most recently used (MRU) files/folders in MS Office applications, from a user's NTuser.dat. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
-  * **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in the MruServiceCache folder *(Office16+ only)*<br>
+  * **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in an 'MruServiceCache' folder *(Office16+ only)*<br>
+__________________________________________________________________________________________
+
+  * **[Backstage.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/Backstage.ps1)**: Powershell script to parse the contents of the json files in a 'BackstageInAppNavCache' folder *(Office16+ only)*<br>
+  [Blog post](http://www.learndfir.com/2018/10/18/daily-blog-510-office-2016-backstage-artifacts/), [Python Script](https://github.com/ArsenalRecon/BackstageParser)
 __________________________________________________________________________________________
 
 
