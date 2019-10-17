@@ -22,10 +22,6 @@ Catch{Write-warning "(ODCreg.ps1):" ; Write-Host "User Cancelled" -f White; exit
 #Load NTUser.dat to temp key in registry
 reg load HKEY_LOCAL_MACHINE\Temp $File
 
-# Metadata -> usually found in the user's NTUser.dat at
-# "SOFTWARE\Microsoft\Office\15.0\Common\Roaming\Identities\xxxxxxxxx_LiveId\Settings\1133\{00000000-0000-0000-0000-000000000000}\ListItems\*\*\"
-# "SOFTWARE\Microsoft\Office\16.0\Common\Roaming\Identities\xxxxxxxxx_LiveId\Settings\1110\{00000000-0000-0000-0000-000000000000}\ListItems\*\*\"
-
 try{Test-Path "HKLM:\Temp\Software\Microsoft\office\" |Out-Null
 $path = Get-ChildItem -Path "HKLM:\Temp\Software\Microsoft\office\*\Common\Roaming\Identities\*\Settings\*" -Include "Listitems" -Recurse -Exclude "Explorer"|
 Where-Object {!$_.ItemData -and !$_.ItemKey -and !$_.LastModified -and !$_.SortKey} |Select-Object 
