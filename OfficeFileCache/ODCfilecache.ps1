@@ -1,4 +1,4 @@
-﻿#Requires -RunAsAdministrator
+﻿##Requires -RunAsAdministrator
 
 # ODCfilecache.ps1
 # Gets information from MS Office 'OfficeFileCache'folder files:
@@ -100,6 +100,7 @@ $output = if($fsf_files.count -ge 1){
                 "FSF Name"          = $file.Name
                 "FSD Name"          = ((Get-content -path $file.FullName -Encoding Ascii).trimend(05).SubString(21)) -replace ('[\x00]', '') 
                 "FSF Lastwritetime" = get-date $file.Lastwritetime -f o
+                "FSF Size"          = $file.length
                 }
             }
         }
@@ -302,9 +303,11 @@ $fsdoutput = if($fsd_files.count -ge 1){foreach ($fsd in $fsd_files) {
             $G5 = $Wq.Substring(30).split('-')
             $Guid += $G5 -join ''
             $FSF_id = [System.Guid]::Parse($Guid).guid
+            $M = if($fsd.Name -match $FSF_id){"="}else{"><"}
             }
          [PSCustomObject]@{
             "FSD FileName"      = $fsd.Name
+            "__"                 = $M
             "FSF Guid"          = "{$($FSF_id.ToUpper())}"
             "Filename"          = [uri]::UnescapeDataString($name)
             "FSD Size (Disk)"   = $fsd.length
@@ -331,8 +334,7 @@ try{$odc_dir = "$($dir)\ODCrecon"
 if(!(Test-Path -Path $odc_dir))
        {write-host "ODCrecon output will be saved in '$($odc_dir)'" -f Yellow
         New-Item -ItemType directory -Path $odc_dir|Out-Null
-        Write-Host "'$($odc_dir)' created" -f yellow
-
+        
 #ODCrecon Parameters:
 $exe = $ODCpath 
 $input = $FSDpath
@@ -348,7 +350,7 @@ catch{Write-warning "(ODCfilecache.ps1): Missing ODCrecon folder"}
 catch{Write-warning "(ODCfilecache.ps1): No .FSD Files in Folder"}
 
 # Stop Console Output
-Stop-Transcript
+Stop-Transcript 
 $tn = NEW-TIMESPAN –Start $sn 
 $msgBoxInput = [System.Windows.Forms.MessageBox]::Show("
 `n$(Get-date -f F)
