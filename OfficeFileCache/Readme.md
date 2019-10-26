@@ -36,10 +36,10 @@ ________________________________________________________________________________
   * **[ODCreg.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreg.ps1)**: Powershell script to parse an NTuser.dat hive file for Microsoft Office roaming Metadata *(Microsoft/Sharepoint IDs, files opened from Skydrive/Sharepoint & related timestamps)*. Exports output to a .txt csv file. Requires to be run as Administrator<br>
 __________________________________________________________________________________________
 
-  * **[ODC-FSD.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSD.ps1)**: Powershell script to parse the OfficeFileCache FSD files in a folder and get FSD size and filename & url of the embedded file. Exports output to a .txt file.<br>
+  * **[ODC-FSD.exe](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSD.exe)**: Parse the OfficeFileCache FSD files in a folder and get FSD size and filename & url of the embedded file. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
-  * **[ODC-FSF.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSF.ps1)**: Powershell script to parse the OfficeFileCache FSF files in a folder and get the embedded FSD GUID. Exports output to a .txt file.<br>
+  * **[ODC-FSF.exe](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODC-FSF.exe)**: Parse the OfficeFileCache FSF files in a folder and get the embedded FSD GUID. Exports output to a .txt file.<br>
 __________________________________________________________________________________________
 
   * **[OneDrive.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OneDrive.ps1)**: Powershell script to list all MS Accounts associated with Onedrive, from a user's NTuser.dat. Requires to be run as Administrator<br>
@@ -49,10 +49,13 @@ ________________________________________________________________________________
 __________________________________________________________________________________________
 
   * **[MruServiceCache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.ps1)**: Powershell script to parse the contents of the json files in an 'MruServiceCache' folder *(Office16+ only)*<br>
+  * **[MruServiceCache.exe](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/MruServiceCache.exe)**: Same as a standalone exe.<br>  
 __________________________________________________________________________________________
 
-  * **[Backstage.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/Backstage.ps1)**: Powershell script to parse the contents of the json files in a 'BackstageInAppNavCache' folder *(Office16+ only)* - 
-  [Blog post](http://www.learndfir.com/2018/10/18/daily-blog-510-office-2016-backstage-artifacts/), [Python Script](https://github.com/ArsenalRecon/BackstageParser)
+  * **[Backstage.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/Backstage.ps1)**: Powershell script to parse the contents of the json files in a 'BackstageInAppNavCache' folder *(Office16+ only)*<br>
+   * **[Backstagex64.exe](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/Backstagex64.exe)**: Same as a standalone exe.<br>
+       [Blog post](http://www.learndfir.com/2018/10/18/daily-blog-510-office-2016-backstage-artifacts/), [Python Script](https://github.com/ArsenalRecon/BackstageParser)
+   
 __________________________________________________________________________________________
 
    - Note1: *The output exported from the above scripts are set to be saved as (csv) .txt files in the* `$env:TEMP` *folder.*
