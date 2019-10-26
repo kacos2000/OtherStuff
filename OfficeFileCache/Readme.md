@@ -1,5 +1,22 @@
 
 ## Office Upload Center
+<br>
+
+ **[The Office Document Cache and Introducing ODC Recon – Part I ](https://arsenalrecon.com/2019/10/the-office-document-cache-and-introducing-odc-recon-part-i/)**
+<br>
+__________________________________________________________________________________________
+
+  * **[OfficeFileCache.exe](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCache.exe)**: x64 GUI FSF & FSD viewer. Optionally exports output to csv.<br>
+  
+     ![OfficeFileCacheFSF.JPG](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCacheFSF.JPG)
+     ![OfficeFileCacheFSD.JPG](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCacheFSD.JPG)
+
+__________________________________________________________________________________________
+
+  * **[ODCreconGUI.exe](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreconGUI.exe)**: x64 GUI for *[ArsenalRecon's](https://arsenalrecon.com/)* **ODCrecon64.exe**. Extracts OOXML documents from FSD files. Obviously, it requires ODCrecon64.exe ;-)<br>
+  
+       ![ODCreconGUI.JPG](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCreconGUI.JPG)
+
 __________________________________________________________________________________________
 
   * **[ODCfilecache.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/ODCfilecache.ps1)**: Powershell script to parse: <br>  
@@ -37,7 +54,6 @@ ________________________________________________________________________________
   * **[Backstage.ps1](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/Backstage.ps1)**: Powershell script to parse the contents of the json files in a 'BackstageInAppNavCache' folder *(Office16+ only)* - 
   [Blog post](http://www.learndfir.com/2018/10/18/daily-blog-510-office-2016-backstage-artifacts/), [Python Script](https://github.com/ArsenalRecon/BackstageParser)
 __________________________________________________________________________________________
-
 
    - Note1: *The output exported from the above scripts are set to be saved as (csv) .txt files in the* `$env:TEMP` *folder.*
    - Note2: *The CentralTable.accdb points to the GUID in the FSF filename, and the FSF contains the GUID of the respective File Store Data (FSD) container.*
