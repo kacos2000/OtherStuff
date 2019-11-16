@@ -6,8 +6,8 @@
 <br>
 __________________________________________________________________________________________
 
-  * **[OfficeFileCache.exe](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCache.exe)**: x64 GUI CentralTable.accdb, FSD & FSF viewer. Optionally exports output to csv.<br>
-      * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920)<br> 
+  * **[OfficeFileCache.exe (x64)](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCache.exe)**:  CentralTable.accdb/db, FSD & FSF parser. Updated to extract data from either an SQLite *(Android, iOS, MAC OS)* or a MSAccess Accdb *(Windows)*  centraltable database depending on the source of the OfficeFileCache folder. Optionally exports output to csv.<br>
+      * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) and/or [System.Data.SQLite.dll](https://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki) - If user opts in, will install them the first time needed.<br> 
   
         ![OfficeFileCacheFSF.JPG](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCacheFSF.JPG)
         ![OfficeFileCacheFSD.JPG](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCacheFSD.JPG)
