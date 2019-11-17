@@ -2,12 +2,13 @@
 ## Office Upload Center
 <br>
 
- **[The Office Document Cache and Introducing ODC Recon – Part I ](https://arsenalrecon.com/2019/10/the-office-document-cache-and-introducing-odc-recon-part-i/)**
-<br>
+ * **[The Office Document Cache and Introducing ODC Recon – Part I ](https://arsenalrecon.com/2019/10/the-office-document-cache-and-introducing-odc-recon-part-i/)** *(blog post)* <br>
+          ![paths](https://pbs.twimg.com/media/EJbaUmCUUAAS9Fl?format=jpg&name=4096x4096)<br>
 __________________________________________________________________________________________
 
   * **[OfficeFileCache.exe (x64)](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCache.exe)**:  CentralTable.accdb/db, FSD & FSF parser. Updated to extract data from either an SQLite *(Android, iOS, MAC OS)* or a MSAccess Accdb *(Windows)*  centraltable database depending on the source of the OfficeFileCache folder. Optionally exports output to csv.<br>
-      * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) and/or [System.Data.SQLite.dll](https://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki) - If user opts in, will install them the first time needed.<br> 
+  Just point it to an OfficeFileCache folder ... <br>
+      * Requires [Microsoft Access Database Engine ODBC driver](https://www.microsoft.com/en-us/download/details.aspx?id=54920) and/or [System.Data.SQLite.dll](https://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki) - If user opts in, will install them the first time needed - or they can be installed manually.<br> 
   
         ![OfficeFileCacheFSF.JPG](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCacheFSF.JPG)
         ![OfficeFileCacheFSD.JPG](https://github.com/kacos2000/Other/blob/master/OfficeFileCache/OfficeFileCacheFSD.JPG)
