@@ -7,7 +7,7 @@ $FileName = Read-Host -Prompt 'Input a Filename'
 $FileName = $FileName.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 $FileName = $FileName.ToUpper()
 
-# Get the inter value of each unicode byte of the filename
+# Get the integer value of each unicode byte of the filename
 $utf8bytes = [System.Text.Encoding]::Unicode.getbytes($FileName)
 
 # Count the number of unicode bytes
