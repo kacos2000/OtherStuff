@@ -8,10 +8,10 @@ $FileName = $FileName.Split([IO.Path]::GetInvalidFileNameChars()) -join '_'
 $FileName = $FileName.ToUpper()
 
 # Get the integer value of each unicode byte of the filename
-$utf8bytes = [System.Text.Encoding]::Unicode.getbytes($FileName)
+$unicodebytes = [System.Text.Encoding]::Unicode.getbytes($FileName)
 
 # Count the number of unicode bytes
-$NumberOfBytes = $utf8bytes.Count
+$NumberOfBytes = $unicodebytes.Count
 
 # Set index & hash to zero
 $index = 0
