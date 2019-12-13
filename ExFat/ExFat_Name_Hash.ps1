@@ -34,7 +34,7 @@ If ($Hash -band 1) {$h = 0x8000} Else {$h = 0}
 
 # Analysis of values table 
         [pscustomobject]@{
-          Nr = $index
+          "#" = $index
           byte = "0x$($hex[$index])"
           "byte value" = $unicodebytes[$index]
           "Hash is odd" = if(!!$h){"Add $($h)"}else{}
@@ -43,7 +43,7 @@ If ($Hash -band 1) {$h = 0x8000} Else {$h = 0}
           "Hash Binary right shift 1 Decimal" = $hash -shr 1
           "Hash Binary right shift 1" = [Convert]::ToString($hash -shr 1,2).PadLeft(16,'0')
           "New Hash" = $h + ($Hash -shr 1) + $unicodebytes[$index]
-          "New Hash (hex)" = "{0:X}" -f ($h + ($Hash -shr 1) + $unicodebytes[$index])
+          "New Hash (hex)" = "0x$(("{0:X}" -f ($h + ($Hash -shr 1) + $unicodebytes[$index])).PadLeft(4,'0'))"
           }
 
 
