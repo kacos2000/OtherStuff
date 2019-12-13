@@ -30,7 +30,7 @@ for($index = 0; $index -lt $NumberOfBytes; $index++){
 # if previous hash (binary) number ends in 1 (odd numbers) add 32768 (0x8000) to the hash value in the next line
 If ($Hash -band 1) {$h = 0x8000} Else {$h = 0}
 
-# for each iteration add to t$Hash the $h value if any, the binary right shift of the hash value and the filename character integer value
+# for each iteration add to the $Hash the $h value if any, the binary right shift of the hash value and the filename character integer value
 # (When shifting right with a binary right shift, the least-significant bit is lost and a 0 is inserted on the other end. )
 $Hash = $h + ($Hash -shr 1) + $unicodebytes[$index]
 
