@@ -32,9 +32,14 @@ Match the total number of clusters:<br>
 ![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit4.JPG) 
 
 
-
-
 *References:*<br>
 [Reverse Engineering the Microsoft exFAT File System](https://www.sans.org/reading-room/whitepapers/forensics/reverse-engineering-microsoft-exfat-file-system-33274) *(pages 42-44)*<br>
 [The Extended FAT file system](https://events.static.linuxfound.org/images/stories/pdf/lceu11_munegowda_s.pdf) *(slide 14)*<br>
 []()
+
+_____________________________________________________
+
+   * [Powershell script to calculate the ExFat Name hash (directory entry) of a filename](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat_Name_Hash.ps1)
+   * [GUI](https://github.com/kacos2000/Other/raw/master/ExFat/ExFat_Namehash.exe) (x64) utility to do the same <br><br>
+      - ![GUI](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/fn.jpg)
+
