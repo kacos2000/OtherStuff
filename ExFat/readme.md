@@ -43,4 +43,4 @@ _____________________________________________________
    * [GUI](https://github.com/kacos2000/Other/raw/master/ExFat/ExFat_Namehash.exe) (x64) utility to do the same <br><br>
       - ![GUI](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/fn.jpg)
 
-  * [Powershell script to calculate a ExFat file directory entry Checksum](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat_Checksum.ps1)
+  * [Powershell script to calculate the Checksum from an ExFat file directory entry's bytes](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat_Checksum.ps1)
