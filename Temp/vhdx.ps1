@@ -200,7 +200,7 @@ $r1EntryCount = [Convert]::ToUInt64($hrftr1ech)
 write-host "Region 1 EntryCount = $($r1EntryCount)" -f white
 
 
-foreach($r1e in (0..($r1EntryCount-1))){
+foreach($r1e in (($r1EntryCount-1)..0)){
 
 # Guid 
 $r1eg = $Fcontent.substring(192*1024+16+(32*$r1e), 16)
@@ -416,7 +416,7 @@ else{write-host  "Not required ($($r1required))"}
 
             write-host "__________________________"
             }
-       catch{write-host "Problem" -f Red;Exit}
+       catch{write-host "BAT section before Metadata ?? WTF" -f Red;Exit}
     $bat1offsets =   foreach($_b in (0..($datablocksCount-1))){
             
             $bat = $Fcontent.substring($r1FileOffset+8*$_b, 8)
@@ -468,6 +468,7 @@ foreach($o in ($bat1offsets)){
             
             $data = $Fcontent.substring([Uint64]($o.offset.TrimEnd(" Mb"))*1024*1024,$block)
             }
+            write-host $data.length -f Red
             # Dump payload data to file
             write-host "**** Saving Payload Data (#Entry: $($o.Entry_Nr) - Offset:$($o.offset)) from VHDX to: '$($env:TEMP)\vhdx_$($snow)_data.img'" -f Green
             $streamWriter = New-Object System.IO.StreamWriter -ArgumentList ("$($env:TEMP)\vhdx_$($snow)_data.img",$true, [System.Text.Encoding]::GetEncoding(28591))
