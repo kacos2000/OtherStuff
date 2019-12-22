@@ -7,7 +7,7 @@ Function Get-FileName($initialDirectory)
 		$OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
 		$OpenFileDialog.Title = 'Select a vhdx file'
 		$OpenFileDialog.initialDirectory = $initialDirectory
-		$OpenFileDialog.Filter = "vhdx files (*.vhdx)|*.vhdx|All files (*.*)|*.*"
+		$OpenFileDialog.Filter = "VHDX file (*.vhdx)|*.vhdx|All files (*.*)|*.*"
 		$OpenFileDialog.ShowDialog() | Out-Null
 		$OpenFileDialog.ShowReadOnly = $true
 		$OpenFileDialog.filename
@@ -16,29 +16,37 @@ Function Get-FileName($initialDirectory)
 
 $fPath =  $env:USERPROFILE+"\Desktop\"
 $vhdx = Get-FileName -initialDirectory $fPath
-
 # get timestamp for data dump file
-$snow = Get-Date -Format FileDateTimeUniversal
+$snow = Get-Date -Format "dd-MMM-yyyyTHH-mm-ss"
 
 try{
-#read file
-        $Stream = New-Object IO.FileStream -ArgumentList $vhdx, 'Open', 'Read'
-		$Encoding = [System.Text.Encoding]::GetEncoding(28591)
-		$StreamReader = New-Object IO.StreamReader -ArgumentList $Stream, $Encoding
-		$Fcontent = $StreamReader.ReadToEnd()
-		$StreamReader.Close()
-		$Stream.Close()
 
-#Create log filename
-$Logfile = "$($env:Temp)\vhdx_$($snow).log"
+#read file
+        # determine the size of the file
+        $file_size = (Get-Item $vhdx).length
+        $Stream = New-Object System.IO.FileStream -ArgumentList $vhdx, 'Open', 'Read'
+		$Encoding = [System.Text.Encoding]::GetEncoding(28591)
+        $BinaryReader  = New-Object System.IO.BinaryReader  -ArgumentList $Stream, $Encoding
+                       
+        $Fcontent = $BinaryReader.ReadBytes(1048576*10)
+        $Fcontent = [System.Text.Encoding]::GetEncoding(28591).getstring($Fcontent)
+        # Read 1st Mb only
+        #$Fcontent =  Get-Content $vhdx -TotalCount 1MB -encoding $Encoding
+        #$Fcontent = [System.BitConverter]::ToString($Fcontent) -replace '-',''
+
+        $BinaryReader.Close()
+		$Stream.Close()
+        [gc]::Collect()	
+
 
 # Start transcript
-Start-Transcript -path $Logfile
+Start-Transcript -path "$($env:Temp)\vhdx_$($snow).log" -Append
 }
 catch{
-Write-Host "Sorry. Can not read the selected file (ie file in use/not enough memory/etc)" -f Red
+Write-Host "Oops, something went wrong" -f Red
 Exit
 }
+
 # read header
 
 # file type identifier - signature
@@ -424,7 +432,7 @@ else{write-host  "Not required ($($r1required))"}
             [array]::reverse($batd)
             $bath = [System.BitConverter]::ToString($batd) -replace '-',''
             #Write-Host "BAT entry $($_b) = $($bath)" -f gray
-            $batn = [Convert]::ToUInt32($bath,16)
+            $batn = [Convert]::ToUInt64($bath,16)
             $batdb = [Convert]::ToString($batn,2).padleft(64,'0')
             #write-host "BAT entry $($_b) = $($batdb)" -f gray
 
@@ -457,30 +465,68 @@ else{write-host  "Not required ($($r1required))"}
 
 $bat1offsets|Format-Table
 # Should we dump the Payload?
+# Check freeSpace
+$frees = (gwmi Win32_LogicalDisk -Filter "DeviceID='$(((Get-ItemProperty $env:Temp).Parent.Name).trim("\"))'").freespace
+if($frees -gt $VirtualDiskSize){
+
+
 $msgBoxInput = [System.Windows.Forms.MessageBox]::Show($this,'Would  you like to save the Payload block to a RAW image file?','VHDX','YesNo','Question')
 switch  ($msgBoxInput) {
 
   'Yes' {
 
 if(!!$bat1offsets){
+# Dump payload data to file
+$Stream = New-Object System.IO.FileStream -ArgumentList $vhdx, 'Open', 'Read'
+$BinaryReader  = New-Object System.IO.BinaryReader  -ArgumentList $Stream, $Encoding
+$outfile = "$($env:TEMP)\vhdx_$($snow)_data.img"
+$streamWriter = New-Object System.IO.StreamWriter -ArgumentList ($outfile,$true, $Encoding)
+
 foreach($o in ($bat1offsets)){
             if($o.Payload_State -match "PAYLOAD_BLOCK_FULLY_PRESENT"){
-            
-            $data = $Fcontent.substring([Uint64]($o.offset.TrimEnd(" Mb"))*1024*1024,$block)
+            # reset $data
+            $data = $null
+            # Set offset to read from the file
+            $BinaryReader.BaseStream.Position = [UInt64]($o.offset.TrimEnd(" Mb"))*1024*1024
+            # Initialize the buffer to be save size as the data block
+            $buffer = [System.Byte[]]::new($block)
+            # Read each offset to the buffer
+            [Void]$BinaryReader.Read($buffer,0,$block)
+            # Convert the buffer data to byte
+            $data = [System.Text.Encoding]::GetEncoding(28591).getstring($buffer)
+
             }
-            write-host $data.length -f Red
-            # Dump payload data to file
-            write-host "**** Saving Payload Data (#Entry: $($o.Entry_Nr) - Offset:$($o.offset)) from VHDX to: '$($env:TEMP)\vhdx_$($snow)_data.img'" -f Green
-            $streamWriter = New-Object System.IO.StreamWriter -ArgumentList ("$($env:TEMP)\vhdx_$($snow)_data.img",$true, [System.Text.Encoding]::GetEncoding(28591))
+            elseif($o.Payload_State -in ("PAYLOAD_BLOCK_NOT_PRESENT","PAYLOAD_BLOCK_ZERO"))
+            {
+            $data = [System.Text.Encoding]::GetEncoding(28591).getstring($buffer)
+            }
+            else{
+            $data = $null
+            }
+            if($o.Entry_Nr -eq 0){
+            write-host "**** Saving Payload Data (#Entry: $($o.Entry_Nr) - Offset:$($o.offset) - State: $($o.Payload_State)) from VHDX to: '$($env:TEMP)\vhdx_$($snow)_data.img'" -f Green
+            }else{
+            write-host "**** Appending Payload Data (#Entry: $($o.Entry_Nr) - Offset:$($o.offset) - State: $($o.Payload_State)) from VHDX to: '$($env:TEMP)\vhdx_$($snow)_data.img'" -f Green
+            }
+            # Write block to Image file
             $streamWriter.write($data)
-            $streamWriter.close()
             
             }
+            $streamWriter.close()
+            $buffer.Clear()
+            $BinaryReader.Close()
+            $Stream.Close()
+            [gc]::Collect()	
 } 
   }
   'No' {
   Continue
   }
+}
+}
+else{
+Write-Host "Available disk space on $((Get-ItemProperty $env:Temp).Parent.Name) is: $($frees) bytes" -f DarkYellow
+Write-Host "Virtual Disk size is: $($VirtualDiskSize)" -f DarkYellow
 }
 
 ###############################################
@@ -707,7 +753,7 @@ foreach($r2e in (0..($r2EntryCount-1))){
                 $batd = [System.Text.Encoding]::getencoding(28591).GetBytes($bat)
                 [array]::reverse($batd)
                 $bath = [System.BitConverter]::ToString($batd) -replace '-',''
-                $batn = [Convert]::ToUInt32($bath,16)
+                $batn = [Convert]::ToUInt64($bath,16)
                 $batdb = [Convert]::ToString($batn,2).padleft(64,'0')
                 # write-host "BAT entry $($_b+1) = $($batdb)" -f gray
 
@@ -737,9 +783,10 @@ foreach($r2e in (0..($r2EntryCount-1))){
                 } # end if
 
 } #end foreach
-$bat2offsets|Format-Table
+#$bat2offsets#Format-Table
 
+[gc]::Collect()	
 # Stop Transcript
-Stop-Transcript
+Stop-Transcript 
 # Open output folder
-Invoke-Item $env:TEMP|sort -Descending
+Invoke-Item $env:TEMP
