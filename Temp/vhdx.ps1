@@ -1,4 +1,24 @@
-﻿# Ref: # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-vhdx/f0efbb98-f555-4efc-8374-4e77945ad422
+﻿# Read $ display the Header & Structures from a VHDX file (first 10Mb raw data can also be used)
+# Display the Block Allocation Entry Table (BAT) entries,
+# Optionally extract the data blocks (as listed in BAT) as a raw disk image file.
+#
+#
+#    .-----------------------------------------------------------------.
+#    |   (A)    |   (B)    |    (C)    |     (D)       |     (E)       |
+#    |  File ID |  Header1 |  Header 2 |  Region Tbl 1 |  Region Tbl 2 |
+#    |          |          |           |               |               |
+#    .-----------------------------------------------------------------.
+#    0         64KB      128KB       192KB           256KB           320KB
+#    .---- ~ ----------- ~ ------------ ~ ---------------- ~ -----------.
+#    |     (F)     |     (G)       |    (H)    |                        |
+#    | Journal Log |  BAT / Bitmap |  Metadata |  .... data ......      |
+#    |             |               |           |                        |
+#    .---- ~ ----------- ~ ------------ ~ ---------------- ~ -----------.
+#   1MB
+#
+# Diagram above was copied from https://github.com/qemu/qemu/blob/master/block/vhdx.c
+# Ref: # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-vhdx/f0efbb98-f555-4efc-8374-4e77945ad422
+
 Clear-Host
 # Show an Open File Dialog 
 Function Get-FileName($initialDirectory)
@@ -27,13 +47,9 @@ try{
         $Stream = New-Object System.IO.FileStream -ArgumentList $vhdx, 'Open', 'Read'
 		$Encoding = [System.Text.Encoding]::GetEncoding(28591)
         $BinaryReader  = New-Object System.IO.BinaryReader  -ArgumentList $Stream, $Encoding
-                       
+        # Read first 10Mb of the selected vhdx file               
         $Fcontent = $BinaryReader.ReadBytes(1048576*10)
         $Fcontent = [System.Text.Encoding]::GetEncoding(28591).getstring($Fcontent)
-        # Read 1st Mb only
-        #$Fcontent =  Get-Content $vhdx -TotalCount 1MB -encoding $Encoding
-        #$Fcontent = [System.BitConverter]::ToString($Fcontent) -replace '-',''
-
         $BinaryReader.Close()
 		$Stream.Close()
         [gc]::Collect()	
@@ -115,13 +131,13 @@ $hrfth2b = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2)
 $hrfth2h = [System.BitConverter]::ToString($hrfth2b) -replace '-',''
 
 # header 2 - checksum
-$hrfth2c = $Fcontent.substring(64*1024+4, 4)
+$hrfth2c = $Fcontent.substring(128*1024+4, 4)
 $hrfth2cb = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2c)
 $H2_CRC32 = [System.BitConverter]::ToString($hrfth2cb) -replace '-',''
 
 
 # header 2 - SequenceNumber 
-$hrfth2sn = $Fcontent.substring(64*1024+8, 8)
+$hrfth2sn = $Fcontent.substring(128*1024+8, 8)
 $hrfth2snb = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2sn)
 [array]::reverse($hrfth2snb)
 $hrfth2snh = [System.BitConverter]::ToString($hrfth2snb) -replace '-',''
@@ -129,25 +145,25 @@ $h2SequenceNumber = [Convert]::ToUInt64($hrfth2snh,16)
 
 
 # header 2 - FileWriteGuid 
-$hrfth2fwg = $Fcontent.substring(64*1024+16, 16)
+$hrfth2fwg = $Fcontent.substring(128*1024+16, 16)
 $hrfth2fwgb = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2fwg)
 $h2fwguid = [System.BitConverter]::ToString($hrfth2fwgb) -replace '-',''
 
 
-# header 1 - DataWriteGuid  
-$hrfth2dwg = $Fcontent.substring(64*1024+32, 16)
+# header 2 - DataWriteGuid  
+$hrfth2dwg = $Fcontent.substring(128*1024+32, 16)
 $hrfth2dwgb = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2dwg)
 $h2DataWriteGuid = [System.BitConverter]::ToString($hrfth2dwgb) -replace '-',''
 
 
-# header 1 - LogGuid  
-$hrfth2lg = $Fcontent.substring(64*1024+48, 16)
+# header 2 - LogGuid  
+$hrfth2lg = $Fcontent.substring(128*1024+48, 16)
 $hrfth2lb = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2lg)
 $h2LogGuid = [System.BitConverter]::ToString($hrfth2lb) -replace '-',''
 
 
 # header 2 - LogVersion  
-$hrfth2lv = $Fcontent.substring(64*1024+64, 2)
+$hrfth2lv = $Fcontent.substring(128*1024+64, 2)
 $hrfth2lvb = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2lv)
 [array]::reverse($hrfth2lvb)
 $hrfth2lvh = [System.BitConverter]::ToString($hrfth2lvb) -replace '-',''
@@ -155,7 +171,7 @@ $h2logversion = [Convert]::ToInt32($hrfth2lvh,16)
 
 
 # header 2 - Version   
-$hrfth2v = $Fcontent.substring(64*1024+68, 2)
+$hrfth2v = $Fcontent.substring(128*1024+68, 2)
 $hrfth2vb = [System.Text.Encoding]::getencoding(28591).GetBytes($hrfth2v)
 [array]::reverse($hrfth2vb)
 $hrfth2vh = [System.BitConverter]::ToString($hrfth2vb) -replace '-',''
@@ -167,7 +183,7 @@ Signature = $hrfts
 Creator = $Creator -replace "\x00",""
 "Header 1 signature" = [System.Text.Encoding]::Utf8.GetString($hrfth1b)
 "Header 1 Checksum" = $H1_CRC32
-"Header 1 Sequence Nt" = $h1SequenceNumber
+"Header 1 Sequence Nr" = $h1SequenceNumber
 "Header 1 FileWriteGUID" = $h1fwguid.ToUpper()
 "Header 1 DataWriteGuid" = $h1DataWriteGuid.ToUpper()
 "Header 1 LogGUID" = $h1LogGuid.ToUpper()
@@ -175,7 +191,7 @@ Creator = $Creator -replace "\x00",""
 "Header 1 Version" = $h1version
 "Header 2 signature" = [System.Text.Encoding]::Utf8.GetString($hrfth2b)
 "Header 2 Checksum" = $H2_CRC32
-"Header 2 Sequence Nt" = $h2SequenceNumber
+"Header 2 Sequence Nr" = $h2SequenceNumber
 "Header 2 FileWriteGUID" = $h2fwguid.ToUpper()
 "Header 2 DataWriteGuid" = $h2DataWriteGuid.ToUpper()
 "Header 2 LogGUID" = $h2LogGuid.ToUpper()
@@ -410,17 +426,22 @@ else{write-host  "Not required ($($r1required))"}
     try{
             write-host "__________________________"
             $chunks =  $block/$LogicalSectorSize
-            write-host "Nr of chunks: $($chunks)" -f DarkYellow
+            write-host "Nr of Chunks: $($chunks)" -f DarkYellow
+            
             $chunkratio = (([Math]::Pow(2,13) *$LogicalSectorSize)/$block)
             write-host "Chunk Ratio: $([math]::Ceiling($chunkratio))" -f DarkYellow
+            
             $datablocksCount =  [math]::Ceiling($VirtualDiskSize/$block)
             write-host "Data blocks count = $(($datablocksCount))" -f DarkYellow
+            
             $SectorBitmapBlocks = [math]::Ceiling($datablocksCount/$chunkratio)
             write-host "Sector Bitmap Blocks = $(($SectorBitmapBlocks))" -f DarkYellow
+            
             $TotalBATentries = $datablocksCount * ([math]::floor(($datablocksCount-1)/$chunkratio))
-            Write-host "Total BAT entries: $($TotalBATentries)" -f DarkYellow
-            $TotalBATentries2= $SectorBitmapBlocks*([math]::Ceiling($chunkratio)+1)
-            Write-host "Total BAT entries: $($TotalBATentries2)" -f DarkYellow
+            Write-host "Total BAT entries (Dynamic): $($TotalBATentries)" -f DarkYellow
+            
+            $TotalBATentries2= $SectorBitmapBlocks*($chunkratio+1)
+            Write-host "Total BAT entries (Differencing): $($TotalBATentries2)" -f DarkYellow
 
             write-host "__________________________"
             }
@@ -470,7 +491,11 @@ $frees = (gwmi Win32_LogicalDisk -Filter "DeviceID='$(((Get-ItemProperty $env:Te
 if($frees -gt $VirtualDiskSize){
 
 
-$msgBoxInput = [System.Windows.Forms.MessageBox]::Show($this,'Would  you like to save the Payload block to a RAW image file?','VHDX','YesNo','Question')
+$msgBoxInput = [System.Windows.Forms.MessageBox]::Show($this,"Would you like to extract & save the Payload blocks as a RAW image file in $($Env:Temp)?
+
+Disk Size needed: $($VirtualDiskSize/1024/1024)Mb
+Disk size available: $([math]::floor($frees/1024/1024))Mb
+",'VHDX','YesNo','Question')
 switch  ($msgBoxInput) {
 
   'Yes' {
@@ -491,14 +516,18 @@ foreach($o in ($bat1offsets)){
             # Initialize the buffer to be save size as the data block
             $buffer = [System.Byte[]]::new($block)
             # Read each offset to the buffer
-            [Void]$BinaryReader.Read($buffer,0,$block)
-            # Convert the buffer data to byte
-            $data = [System.Text.Encoding]::GetEncoding(28591).getstring($buffer)
-
-            }
-            elseif($o.Payload_State -in ("PAYLOAD_BLOCK_NOT_PRESENT","PAYLOAD_BLOCK_ZERO"))
+                try{
+                [Void]$BinaryReader.Read($buffer,0,$block)
+                # Convert the buffer data to byte
+                $data = [System.Text.Encoding]::GetEncoding(28591).getstring($buffer)
+                }
+                catch{write-host "Problem reading offset $($o.offset)" -f Red}
+                }
+            elseif($o.Payload_State -in ("PAYLOAD_BLOCK_ZERO")) # "PAYLOAD_BLOCK_NOT_PRESENT",
             {
+            # insert a block full of 0x00 for the Payload block with Zero size
             $data = [System.Text.Encoding]::GetEncoding(28591).getstring($buffer)
+            write-host "**** Data block $($o.Entry_Nr) is Zero, so we are adding a $($block/1024/1024)Mb block padded with 0x00" -f Cyan
             }
             else{
             $data = $null
@@ -506,7 +535,7 @@ foreach($o in ($bat1offsets)){
             if($o.Entry_Nr -eq 0){
             write-host "**** Saving Payload Data (#Entry: $($o.Entry_Nr) - Offset:$($o.offset) - State: $($o.Payload_State)) from VHDX to: '$($env:TEMP)\vhdx_$($snow)_data.img'" -f Green
             }else{
-            write-host "**** Appending Payload Data (#Entry: $($o.Entry_Nr) - Offset:$($o.offset) - State: $($o.Payload_State)) from VHDX to: '$($env:TEMP)\vhdx_$($snow)_data.img'" -f Green
+            write-host "**** Appending Payload Data (#Entry: $($o.Entry_Nr) - Offset:$($o.offset) - State: $($o.Payload_State))" -f Green
             }
             # Write block to Image file
             $streamWriter.write($data)
@@ -783,7 +812,7 @@ foreach($r2e in (0..($r2EntryCount-1))){
                 } # end if
 
 } #end foreach
-#$bat2offsets#Format-Table
+$bat2offsets#Format-Table
 
 [gc]::Collect()	
 # Stop Transcript
