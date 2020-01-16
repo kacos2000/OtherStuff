@@ -1,4 +1,4 @@
-﻿# Read $ display the Footer & Header from a VHD file 
+# Read $ display the Footer & Header from a VHD file 
 # Display the Block Allocation Entry Table (BAT) entries of a Dynamic Disk,
 # Optionally extract the data blocks as a Raw Disk image file.
 #
@@ -352,7 +352,7 @@ switch  ($msgBoxInput) {
 
   'Yes' {
 
-## Extract entries to RAW image file CRAAAAAAAP page 12
+## Extract entries to RAW image file -page 12
 try{
         $Stream = New-Object System.IO.FileStream -ArgumentList $vhd, 'Open', 'Read'
         $BinaryReader  = New-Object System.IO.BinaryReader  -ArgumentList $Stream, $Encoding
