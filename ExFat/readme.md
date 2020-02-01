@@ -38,8 +38,14 @@ Match the total number of clusters:<br>
 
 _____________________________________________________
 
-   * [Powershell script to calculate the ExFat Name hash (directory entry) of a filename](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat_Name_Hash.ps1) - [(pdf)](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat%20NameHash.pdf)
+   * [Powershell script to calculate the ExFat Name hash (directory entry) of a filename](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat_Name_Hash.ps1) -> [(pdf)](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat%20NameHash.pdf)
    * [GUI](https://github.com/kacos2000/Other/raw/master/ExFat/ExFat_Namehash.exe) (x64) utility to do the same <br><br>
       - ![GUI](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/fn.jpg)
 
-  * [Powershell script to calculate the Checksum from an ExFat file directory entry's bytes](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat_Checksum.ps1) - [(pdf)](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat%20Checksum.pdf)
+  * [Powershell script to calculate the Checksum from an ExFat file directory entry's bytes](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat_Checksum.ps1) -> [(pdf)](https://github.com/kacos2000/Other/blob/master/ExFat/ExFat%20Checksum.pdf)
+
+_____________________________________________________
+
+   * [Powershell script to calculate FAT Date/Time](https://github.com/kacos2000/Other/blob/master/FAT_timestamp.ps1)
+     <br><br>
+     ![FAT date/time](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/fatdt.JPG)
