@@ -12,9 +12,6 @@ if($hex.Length -ne 8){write-warning "Not valid Hex - try again";exit}
 $hex_time = "0x$(($hex -split "(....)")[1])"
 $hex_date = "0x$(($hex -split "(....)")[3])"
 
-#$hex_time = "0x8aD8"
-#$hex_date = "0x4d98"
-
 write-host "Hex values: $($hex_time) $($hex_date)`n" -f Cyan
 
 $bin_t = [Convert]::ToString($hex_time,2).padleft(16,'0')
