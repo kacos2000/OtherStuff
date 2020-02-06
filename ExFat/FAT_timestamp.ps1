@@ -2,7 +2,7 @@
 Clear-Host
 
 # get HEX from the user
-$Hex = Read-Host -Prompt 'Please enter 8 bytes (Hex) for Time/Date'
+$Hex = Read-Host -Prompt 'Please enter 4 bytes (Hex) for Time/Date'
 if($hex -match "0x")
 {$hex = $hex.trimstart("0x")}
 
