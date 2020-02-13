@@ -1,15 +1,15 @@
-# Copyright Costas Katsavounidis 8/2018
-# CC Attribution 4.0 International (CC BY 4.0) 
-# https://creativecommons.org/licenses/by/4.0/legalcode
+﻿# ref: http://www.ntfs.com/exfat-allocation-bitmap.htm
+# Ref: https://docs.microsoft.com/en-us/windows/win32/fileio/exfat-specification#51-cluster-heap-sub-region
+clear-host
 
-# Show an Open File Dialog 
+# Show Open File Dialogs 
 Function Get-FileName($initialDirectory, $Title ,$Filter)
 {  
-[System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") |Out-Null
+[Void][System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms")
 		$OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
 		$OpenFileDialog.Title = $Title
 		$OpenFileDialog.initialDirectory = $initialDirectory
-                $OpenFileDialog.Filter = $filter
+        $OpenFileDialog.Filter = $filter
 		$OpenFileDialog.ShowDialog() | Out-Null
 		$OpenFileDialog.ShowReadOnly = $true
 		$OpenFileDialog.filename
@@ -17,14 +17,16 @@ Function Get-FileName($initialDirectory, $Title ,$Filter)
 } #end function Get-FileName 
 
 $DesktopPath =  [Environment]::GetFolderPath("Desktop")
-$File = Get-FileName -initialDirectory $DesktopPath -Filter "$Bitmap (*.*)|$Bitmap" -Title 'Select ExFAT $Bitmap file'
+$File = Get-FileName -initialDirectory $DesktopPath -Filter "$([char]36)Bitmap ($([char]36)Bitmap*.*)|$([char]36)Bitmap*|All files (*.*)|*.*" -Title 'Select ExFAT $Bitmap file'
 $F =$File.replace($env:LOCALAPPDATA,'')
-
+if([string]::IsNullOrEmpty($File)){write-warning "User Cancelled";break}
 Write-Host "Loaded ($File)"
 
 #Read the file:
 $count=$ccount=$null
-$AllClusters = @(Get-Content $File -Encoding Byte -ReadCount 1) #readcount 1 to get each byte instead of the whole dump
+
+$AllClusters = @(Get-Content $File -Encoding Byte -ReadCount 1) #readcount 1 to get each line instead of the whole dump
+
 $count = $AllClusters.count #Same as Filesize
 $x=0
 write-host "Bitmap size: $count" -f white
@@ -34,13 +36,13 @@ $Clusters = foreach ($c in $AllClusters){
             
             if ($c -ne 0){
                              
-                             $offset="0x"+[System.Convert]::ToString(($x),16).PadLeft(2,'0').ToUpper() 
-                             $v = "0x"+[System.Convert]::ToString(($c),16).PadLeft(2,'0').ToUpper()
+                             $offset="0x"+[System.Convert]::ToString(($x),16).PadLeft(8,'0').ToUpper() 
+                             $v = "0x"+[System.Convert]::ToString(($c),16).PadLeft(8,'0').ToUpper()
                              $b = [System.Convert]::ToString($c,2).PadLeft(8,'0')
-                             write-host "Offset $offset " -NoNewline -f cyan;
-                             write-host "- (Starting cluster $(($x*8)+2) - End cluster -> $(($x*8)+9)):" -NoNewline -f yellow; 
-                             write-host " HEX $($v)" -f cyan -NoNewline;
-                             write-host " Binary  $($b)" -f white
+                             # write-host "Offset $offset " -NoNewline -f cyan;
+                             # write-host "- (Starting cluster $(($x*8)+2) - End cluster -> $(($x*8)+9)):" -NoNewline -f yellow; 
+                             # write-host " HEX $($v)" -f cyan -NoNewline;
+                             # write-host " Binary  $($b)" -f white
                                                         
 
                                 if($b[7] -ne '0') {$cl1 = $(($x*8)+2)}else{$cl1=$null}
@@ -74,6 +76,5 @@ $Clusters = foreach ($c in $AllClusters){
                       
           else {$x++}
 }
-
 
 $Clusters|Out-GridView -Title "There are $ccount allocated Clusters (in use)  in $File" -PassThru
