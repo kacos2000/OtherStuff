@@ -42,6 +42,6 @@ _____________________________________________________
 
 _____________________________________________________
 
-   * [Powershell script to calculate FAT Date/Time](https://github.com/kacos2000/Other/blob/master/FAT_timestamp.ps1)
+   * [Powershell script to calculate FAT Date/Time](https://github.com/kacos2000/Other/blob/master/ExFat/FAT_timestamp.ps1)
      <br><br>
      ![FAT date/time](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/fatdt.JPG)
