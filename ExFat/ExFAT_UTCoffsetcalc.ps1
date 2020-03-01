@@ -3,7 +3,17 @@
 
 # Clear screen
 Clear-Host
-
+# Check Validity of script
+if ((Get-AuthenticodeSignature $MyInvocation.MyCommand.Path).Status -ne "Valid")
+{
+	
+	$check = [System.Windows.Forms.MessageBox]::Show($this, "WARNING:`n$(Split-path $MyInvocation.MyCommand.Path -Leaf) has been modified since it was signed.`nPress 'YES' to Continue or 'No' to Exit", "Warning", 'YESNO', 48)
+	switch ($check)
+	{
+		"YES"{ Continue }
+		"NO"{ Exit }
+	}
+}
 # get HEX from the user
 $Hex = Read-Host -Prompt 'Please enter 1 byte (Hex) for Time Stamp UTC Differential'
 if($hex -match "0x")
@@ -53,8 +63,8 @@ write-host "UTC offset is: $($utc_offset)`nZone: "$($Zones["$($utc_offset)"])"`n
 # SIG # Begin signature block
 # MIIfcAYJKoZIhvcNAQcCoIIfYTCCH10CAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCCmcgJSh+AbQ4ms
-# rGj4b5G2TAxhUWjH9clfPlOKEMshDqCCGf4wggQVMIIC/aADAgECAgsEAAAAAAEx
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCAkLL6MyI4jRhLC
+# AFxc71PhcdErVA+FzbYOzmNSaNHamaCCGf4wggQVMIIC/aADAgECAgsEAAAAAAEx
 # icZQBDANBgkqhkiG9w0BAQsFADBMMSAwHgYDVQQLExdHbG9iYWxTaWduIFJvb3Qg
 # Q0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMKR2xvYmFsU2ln
 # bjAeFw0xMTA4MDIxMDAwMDBaFw0yOTAzMjkxMDAwMDBaMFsxCzAJBgNVBAYTAkJF
@@ -197,26 +207,26 @@ write-host "UTC offset is: $($utc_offset)`nZone: "$($Zones["$($utc_offset)"])"`n
 # R3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9T
 # ZWN0aWdvIExpbWl0ZWQxJDAiBgNVBAMTG1NlY3RpZ28gUlNBIENvZGUgU2lnbmlu
 # ZyBDQQIRALjpohQ9sxfPAIfj9za0FgUwDQYJYIZIAWUDBAIBBQCgTDAZBgkqhkiG
-# 9w0BCQMxDAYKKwYBBAGCNwIBBDAvBgkqhkiG9w0BCQQxIgQgwG+KlPHovjfymp2G
-# 4z4LMWn58InG4wi0llCjbztmpOMwDQYJKoZIhvcNAQEBBQAEggEANIBDn8s8OQ1e
-# r2FucpZJUDaEpb4l9H3Fx7eP1zRN27gu3DZOkSENf8GhxAfu1KSFEbAmj3aCd0RH
-# wS+oaQVL3M2/MBhSJY32Td5RdqkN0DpvikrAg+lgIU+GnxOk4Q3QqkTpEGEBYrw4
-# X4hzyK9Tb3pmemdtpv9Vc+Rmdso0VBH8C34ZvvsawfwrVkDh0M5FSKgM/0BPSxGL
-# S61M+AGcTEX605qWteSgA5FPcpwCp2ajSkeMDJNzo+3g2zRdj3QVoSPAGLd4lVy8
-# 6vM7XM8Tkme8JkuyGDj8ZYkLFLpa7mMy/CzLC0yoaa3Zi2vP79l+go03VFu3wHuR
-# QTHWJLlG9aGCArkwggK1BgkqhkiG9w0BCQYxggKmMIICogIBATBrMFsxCzAJBgNV
+# 9w0BCQMxDAYKKwYBBAGCNwIBBDAvBgkqhkiG9w0BCQQxIgQg5zlhA62+hgRQIgKG
+# 699GLX1BpVy8lnL6VJioBEkGgCkwDQYJKoZIhvcNAQEBBQAEggEAhFOSp+foKphn
+# Z7SQqoAbsJqOMoglpL3G1uCKvi6lGlAa9OCtv0uYRaYFFm2Qd6xJUkCr7tVYJEt9
+# NnRqW3794LYmSC0VAxjh1afsXbbBprWT0+aWjkvwS8/wSXd90JYjgVBMoTQCr+Vl
+# uuiP5OoBcxVs9XO/rG8GAu0icrxr3CK1OOOhzzf01Zf1qkoe5QiNz7fJrNslcZjR
+# o30ih4HSgB+eGu8nDFK9jhKhWFaAg5OYj+EJHdGaa2icFpCWrWyaLZCrc+X0Vk7i
+# 4Y7agJqAyolqlYKEX+tXaF3VarZX0+30ve5NDdMbX5UBIe7R/vTgA64riZr7CrN0
+# s2xE9sw/H6GCArkwggK1BgkqhkiG9w0BCQYxggKmMIICogIBATBrMFsxCzAJBgNV
 # BAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTEwLwYDVQQDEyhHbG9i
 # YWxTaWduIFRpbWVzdGFtcGluZyBDQSAtIFNIQTI1NiAtIEcyAgwkVLh/HhRTrTf6
 # oXgwDQYJYIZIAWUDBAIBBQCgggEMMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-# HAYJKoZIhvcNAQkFMQ8XDTIwMDIyMDExNTQzMVowLwYJKoZIhvcNAQkEMSIEIDgv
-# GMIPrxjvTCEhTVja0pYulfgKtyyqvIPxsGYy7f9KMIGgBgsqhkiG9w0BCRACDDGB
+# HAYJKoZIhvcNAQkFMQ8XDTIwMDMwMTEyNDIwMFowLwYJKoZIhvcNAQkEMSIEIPpj
+# BwOSHxvvMe+cy2C5M+ke/G4txv3r35wX+d3o9EukMIGgBgsqhkiG9w0BCRACDDGB
 # kDCBjTCBijCBhwQUPsdm1dTUcuIbHyFDUhwxt5DZS2gwbzBfpF0wWzELMAkGA1UE
 # BhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExMTAvBgNVBAMTKEdsb2Jh
 # bFNpZ24gVGltZXN0YW1waW5nIENBIC0gU0hBMjU2IC0gRzICDCRUuH8eFFOtN/qh
-# eDANBgkqhkiG9w0BAQEFAASCAQC21XihH796dPqTR44yQOYqTexiWdZ3Oul1yiKo
-# SyoLzKlPTDbpD8QaHHdyTvYDX/f5+7HpYcd1lPyBstUZfvlBO2Vh70+CLUObmiT2
-# YEnM6UAfR+6ONrQWIRGjWHqRKyWc7WjZpLRvUYSDP20QzFkL3auXjvOsKVJDlSeW
-# r13Ws57GiekmJNN5aOowQXw4xi9ZkJS5U63bni3EweAt36iPMkGGRKrxNe1AEqnW
-# MhGDVpByTmpKXFKsbRLYiIz3NLlcVc0VgAPNlhOcZJ75ryBwSmCsiNnsRb7myBIw
-# hgLgeT2/g/xqRujUERhdZ5hHe3uZuAhqNoIgLxOBMWnphRmE
+# eDANBgkqhkiG9w0BAQEFAASCAQAwBgNYSrHgsvVVbUrx8K/2cTqwtI9mO7MeVWNp
+# Frt1Dsux5e5xyivwukiRJfckWNfbZw49Ic29Zpbrsp7uFC8Qexirtivi51BKAnRd
+# MidfR5c48WPNAuqUMvm1+1p9tDUDYPC9U/wIFcRPpO2otn5l8NQvK6vRUNf/zkhs
+# wFMPaF2L1/0XaEog/wWOPpnyZtZYlz8HnLI/vO7rOeAArV1GXPK2gUVHhQ2eg/WD
+# Lw8AKKaF4Hqb59CAW1thPzLxzC655ic47+U+aWAtKErdRVZ28J8Sul8ZD0J+hlq0
+# oc+xjdDN1gfy2vlSjXFoQ8JGZv+AsQegPrIAkHDS4VBDssbB
 # SIG # End signature block
