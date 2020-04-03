@@ -1,4 +1,5 @@
 ﻿clear-host
+# ref: https://pdfs.semanticscholar.org/753b/09eeaecd588449493b0449a2bbfc895705b2.pdf
 
 # Show an Open folder Dialog
 $handle = [System.Diagnostics.Process]::GetCurrentProcess().MainWindowHandle
@@ -9,8 +10,8 @@ if($dir -ne $null)
 	{$folder = $dir.Self.path}
 	    else
 { Write-warning "User Cancelled"; Exit}
-
-$ooxml = Get-ChildItem $Folder -include *.xlsx,*.pptx,*.docx,*.vsdx,*.zip -Recurse
+# https://support.office.com/en-us/article/open-xml-formats-and-file-name-extensions-5200d93c-3449-4380-8e11-31ef14555b18
+$ooxml = Get-ChildItem $Folder -include *.xlsx,*.xlsm,*.xltx,*.xltm,*.xlsb,*.xlam,*.pptx,*.ppsx,*.ppsm,*.sldx,*.docx,*.docm,*.dotx,*.dotm,vsdx -Recurse -ErrorAction SilentlyContinue
 if($ooxml.count -ge 1){
 
 # Loop through files
@@ -22,6 +23,8 @@ catch{continue}
 
 # check if core.xml & app.xml exist
 if($contents.name -notcontains "core.xml" -and $contents.name -notcontains "app.xml"){continue}
+
+        $revcount = ($contents|where -Property name -match "revisionInfo").count -or ($contents|where -Property name -match "revStream").count -or ($contents|where -Property name -match "comments").count
 
         # Read core.xml
         $fc = $contents|where -Property name -eq "core.xml"
@@ -40,7 +43,7 @@ if($contents.name -notcontains "core.xml" -and $contents.name -notcontains "app.
         $streama.Close()
         
         if($oo -match ".xlsx"){
-            
+            try{
             # read workbook.xml
             $fw = $contents|where -Property name -eq "workbook.xml"
             $streamw = $fw.Open()
@@ -52,44 +55,92 @@ if($contents.name -notcontains "core.xml" -and $contents.name -notcontains "app.
             if(!!$work.workbook.revisionPtr.documentId){
             $revision = $work.workbook.revisionPtr.documentId
             }else{$revision = ""}
-        }
+            }catch{$work=$null}
+           }
         else{$revision = ""}
+
         $version = if(!!$core.coreproperties.revision){$core.coreproperties.revision}
                 elseif($core.coreproperties.version){$core.coreproperties.version}
                 elseif(!!$work.workbook.fileVersion.lastedited){$work.workbook.fileVersion.lastedited}
                 else{}
    
+        # Check internal lastwritetime timestamps - if not 1/1/1980, file was tampered
+        $tamprered = if(($contents.lastwritetime.datetime|Select-Object -Unique).count -gt 1)  {"Yes"}
+                 elseif(($contents.lastwritetime.datetime -ne (get-date 1/1/1980)).count -ge 1){"Possible"}
+                 else{}
+
+        $lastprinted = if(!!$core.coreproperties.lastprinted -and $core.coreproperties.lastprinted -ne "1601-01-01T00:00:00Z" )
+                        {get-date $core.coreproperties.lastprinted -f o}else{}
+        # https://docs.microsoft.com/en-us/dotnet/api/documentformat.openxml.extendedproperties.documentsecurity?view=openxml-2.8.1
+        $security = if($app.Properties.docsecurity -eq 1){"password protected"}
+                elseif($app.Properties.docsecurity -eq 2){"recommended as read-only"}
+                elseif($app.Properties.docsecurity -eq 4){"enforced read-only"}
+                elseif($app.Properties.docsecurity -eq 8){"locked for annotation"}
+                elseif($app.Properties.docsecurity -eq 0){"None"}else{}
+
         [psCustomObject]@{
-                file = $oo.fullname
-                size = $oo.length
-                application = $app.Properties.Application
-                Version = $version
-                Revision = $revision
+                File = $oo.fullname
+                Size = $oo.length
+                Application = $app.Properties.Application
+                AppVersion = $app.Properties.AppVersion
+                Security = $security
+                Tampered = $tampered
+                Revision = $version
+                XL_Rev = $revision
+                "Has_Revs/Comments" = if($revcount -ge 1){"Yes"}else{}
+                Signed = if(!!$app.Properties.DigSig){"Yes"}else{}
                 TotalTime = $app.Properties.TotalTime
-                Pages = $app.Properties.Pages
-                Company = $app.Properties.Company
+                Pages = if(!!$app.Properties.Pages){$app.Properties.Pages}elseif(!!$app.Properties.Slides){$app.Properties.Slides}else{}
+                Lines = $app.Properties.Lines
+                Category = $core.coreproperties.category
+                ID = $core.coreproperties.identifier
+                Keyword = $core.coreproperties.keywords
+                Status = $core.coreproperties.contentStatus
                 Title = $core.coreproperties.title
                 Subject = $core.coreproperties.subject
+                Description = $core.coreproperties.description
+                Company = $app.Properties.Company
+                Manager = $app.Properties.Manager
                 Creator = $core.coreproperties.creator
                 Created = if(!!$core.coreproperties.created){get-date $core.coreproperties.created."#text" -f o}else{}
                 ModifiedBy = $core.coreproperties.lastModifiedby
                 Modified = if(!!$core.coreproperties.modified){get-date $core.coreproperties.modified."#text" -f o}else{}
-                LastPrinted = if(!!$core.coreproperties.lastprinted){get-date $core.coreproperties.lastprinted -f o}else{}
-        
+                LastPrinted = $lastprinted
+                Template = $app.Properties.Template
                 }
-
+if($app.Properties.InnerXml -match "DigSig"){exit}
 } # end foreach ooxml
+[gc]::Collect()
 } # end ooxml count
-$Properties|sort -Property file |Out-GridView -PassThru
 
+$Properties|sort -Property file |Out-GridView -PassThru -Title "$($ooxml.count) ooxml files found" 
 
+# Save output
+$save = Read-Host "Save Output? (Y/N)" 
 
+if ($save -eq 'y') {
+    Function Get-FileName($InitialDirectory)
+ {
+  [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
+  $SaveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+  $SaveFileDialog.initialDirectory = $initialDirectory
+  $SaveFileDialog.filter = "Comma Separated Values (*.csv)|*.csv|All Files (*.*)|(*.*)"
+  $SaveFileDialog.ShowDialog() | Out-Null
+  $SaveFileDialog.filename
+ }
+$outfile = Get-FileName -InitialDirectory [environment]::GetFolderPath('Desktop')
+if(!$outfile){write-warning "Bye";exit}
+
+	if (!(Test-Path -Path $outfile)) { New-Item -ItemType File -path $outfile| out-null }
+	$Properties | Export-Csv -Delimiter "|" -NoTypeInformation -Encoding UTF8 -Path "$outfile"
+	# Invoke-Item (split-path -path $outfile)
+}
 
 # SIG # Begin signature block
 # MIIfcAYJKoZIhvcNAQcCoIIfYTCCH10CAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCBNq5YB+iGCk0+e
-# M57lsTc5vdxyIfu8yttifHRZf6qUzqCCGf4wggQVMIIC/aADAgECAgsEAAAAAAEx
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCAU4EfmbzgrTtkP
+# 4WHzepOCIM75R/+RIni1Rj5I7dX3KaCCGf4wggQVMIIC/aADAgECAgsEAAAAAAEx
 # icZQBDANBgkqhkiG9w0BAQsFADBMMSAwHgYDVQQLExdHbG9iYWxTaWduIFJvb3Qg
 # Q0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMKR2xvYmFsU2ln
 # bjAeFw0xMTA4MDIxMDAwMDBaFw0yOTAzMjkxMDAwMDBaMFsxCzAJBgNVBAYTAkJF
@@ -232,26 +283,26 @@ $Properties|sort -Property file |Out-GridView -PassThru
 # R3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9T
 # ZWN0aWdvIExpbWl0ZWQxJDAiBgNVBAMTG1NlY3RpZ28gUlNBIENvZGUgU2lnbmlu
 # ZyBDQQIRALjpohQ9sxfPAIfj9za0FgUwDQYJYIZIAWUDBAIBBQCgTDAZBgkqhkiG
-# 9w0BCQMxDAYKKwYBBAGCNwIBBDAvBgkqhkiG9w0BCQQxIgQgiehZUGjL3nP3XXXL
-# oOgLWJA+nexeNEXTE+jROR8fltYwDQYJKoZIhvcNAQEBBQAEggEAuJHU2vBkQE5E
-# Uh7fgmmS7zfEi8TF1H5iolJEMo359uoZzKWyMKN0CDtbARYNiNXQQ65CIqJIi8X0
-# wJ57iHuXfchbhBwqv8t+KEshW8+fIiHQ7CNjuvwWKmyg0+jaVwOYk8fQcBOq81pv
-# UnsLomLr7Uy6pZ/aFBScPrNnf8XLx1x4xN+iQywFKnInWO/6abSO/7IjRbSTNhCm
-# HOXGYI8gYWZOf+jiy3RPSblX0JGnigpc0s8Rtd1qc8HM8f83wBid5HCuWY9ay1kf
-# zin1gQSqwt5jTD6iXkEXk7mteaomu58DfWKWspp9Ylt/xkwg34sHkVCr7ydELcd6
-# AtKueCcNMKGCArkwggK1BgkqhkiG9w0BCQYxggKmMIICogIBATBrMFsxCzAJBgNV
+# 9w0BCQMxDAYKKwYBBAGCNwIBBDAvBgkqhkiG9w0BCQQxIgQgMWA1dCZWl8KZQiPb
+# 6cZEtL/TYp64ZduOAqArGPpe/NYwDQYJKoZIhvcNAQEBBQAEggEAgILGBmgjxYv/
+# 5lbydZrrjhaQ1JgmAU+Se8KekFHAqYKeMyL7sbspwjvXSF1AGC0evGs0ORetUh+G
+# eD4uGrOeLHzUE7SwCO37L4ZIeMJVQYCRks1GJWziY0F6QJ3qHVT337Ld9V3xN2qO
+# B4bdruqdL1GoRio+GA6FU+W9214QQX9CQt9X5EfxmSg4z4ny+H28U/PUDRSrVLna
+# JNds3zrfeVdqnuXV3TlHmyo/3JAneCEQIoV2T4Mogt/64i1PNqVyhTr0bnJ+pnPh
+# LFBZv0fZeIR6x5KYtLur99lag2UWCluX1V1ArtLSyrvDM0ForzGz99MdbSiR0BDc
+# 9xGqO0WcyKGCArkwggK1BgkqhkiG9w0BCQYxggKmMIICogIBATBrMFsxCzAJBgNV
 # BAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTEwLwYDVQQDEyhHbG9i
 # YWxTaWduIFRpbWVzdGFtcGluZyBDQSAtIFNIQTI1NiAtIEcyAgwkVLh/HhRTrTf6
 # oXgwDQYJYIZIAWUDBAIBBQCgggEMMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-# HAYJKoZIhvcNAQkFMQ8XDTIwMDQwMjE3MDMxOFowLwYJKoZIhvcNAQkEMSIEIH0i
-# lvGk0qNJZaiRlxTAifwy1so1jG74pzPh7KY6+XzzMIGgBgsqhkiG9w0BCRACDDGB
+# HAYJKoZIhvcNAQkFMQ8XDTIwMDQwMzE3MDAzNlowLwYJKoZIhvcNAQkEMSIEILeq
+# slbOZtmB/1RIc55IF1btvqAMI0BaYGH8J5KhhCxkMIGgBgsqhkiG9w0BCRACDDGB
 # kDCBjTCBijCBhwQUPsdm1dTUcuIbHyFDUhwxt5DZS2gwbzBfpF0wWzELMAkGA1UE
 # BhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExMTAvBgNVBAMTKEdsb2Jh
 # bFNpZ24gVGltZXN0YW1waW5nIENBIC0gU0hBMjU2IC0gRzICDCRUuH8eFFOtN/qh
-# eDANBgkqhkiG9w0BAQEFAASCAQB+TcGMZXM4jqOero8YmdtEK6gBvQXPmuxdL8Bo
-# Farg688tYy1wKjsnuFapeqlY5aQGf9lQ2k2xnK8ph59TN9QmOLI0JNmDzG45K95k
-# yu/jyX3QvTngTBij0JDcWYg1iv4MySmzWXaaP390oILvPTRe1loa0Fj0TOWR2i5p
-# WbfT9A7DbcAQfcez10FdV+1Mepgn+EwhTUZuKQC4W4y7cT59fLTqADxtPP8jgC0P
-# QF9z9ONzszaBcyzdfBqUR1e6VKkZhvzoOozN4smlw+QjRHJuPEsKGwjJwkdA/iQf
-# GUbvt2fhaNFp6BJQT6eIDr5pqYSqaCU+iLS8OCoha2xdxPKB
+# eDANBgkqhkiG9w0BAQEFAASCAQDL5PmUsHu+ziEKxLF+/gD6yWaYzBl3fMgqkRvx
+# /UO4LC0hUdFaP2aGVeLruIMtrXxTQ40yoynaTdWW7qtGKrUvKSCXswfbs6D6WaVS
+# 2E/hgoh90vsOWl9inUiS+QnpUXS8W2oDw8uFXDukpP80CZU1HRJFNB8Hko4wrCtx
+# F8xIP5P6lGQKfsx4CG3A/82FgK1u/zlTrJ+lG3Y9pGjeqqrHjWdTtglhIceTNwV4
+# jEvSPLTDAO0DmRFzA9c4JpkDRdV7RviRnw9BW1CRUfgZqHoy23C3N2yFNWfPwWua
+# B3OxZhXGmNLvdNmV5Rz0SjztEMsxLkC4impoKam5PQtU5Ys2
 # SIG # End signature block
