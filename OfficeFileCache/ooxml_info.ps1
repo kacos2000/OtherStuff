@@ -11,7 +11,7 @@ if($dir -ne $null)
 	    else
 { Write-warning "User Cancelled"; Exit}
 # https://support.office.com/en-us/article/open-xml-formats-and-file-name-extensions-5200d93c-3449-4380-8e11-31ef14555b18
-$ooxml = Get-ChildItem $Folder -include *.xlsx,*.xlsm,*.xltx,*.xltm,*.xlsb,*.xlam,*.pptx,*.ppsx,*.ppsm,*.sldx,*.docx,*.docm,*.dotx,*.dotm,vsdx -Recurse -ErrorAction SilentlyContinue
+$ooxml = Get-ChildItem $Folder -include *.xlsx,*.xlsm,*.xltx,*.xltm,*.xlsb,*.xlam,*.pptx,*.ppsx,*.ppsm,*.sldx,*.docx,*.docm,*.dotx,*.dotm,vsdx,*.zip -Recurse -ErrorAction SilentlyContinue
 if($ooxml.count -ge 1){
 
 # Loop through files
@@ -53,11 +53,57 @@ if($contents.name -notcontains "core.xml" -and $contents.name -notcontains "app.
             $streamw.Close()
             
             if(!!$work.workbook.revisionPtr.documentId){
-            $revision = $work.workbook.revisionPtr.documentId
-            }else{$revision = ""}
+            $docid = $work.workbook.revisionPtr.documentId
+            }else{$docid = $null}
             }catch{$work=$null}
            }
-        else{$revision = ""}
+        
+        if($oo -match ".docx"){
+            try{
+            $docChg = $null
+            # read settings.xml
+            $fw = $contents|where -Property name -eq "settings.xml"
+            $streamw = $fw.Open()
+            $readerw = New-Object IO.StreamReader($streamw)
+            [xml]$doc = $readerw.ReadToEnd()
+            $readerw.Close()
+            $streamw.Close()
+
+            try{if($doc.settings.trackRevisions.Equals("")){
+                $docChg = "Yes"}}
+            catch{$docChg = $null}
+
+            try{if($doc.settings.docId.count -ge 1){
+                    $docid = $doc.settings.docId[1].val}
+               else{$docid = $doc.settings.docId.val}}
+            catch{$docid = $null}
+
+            try{$rempers = $null
+            if($doc.settings.removePersonalInformation.Equals("")){
+                $rempers = "Yes"}else{$rempers = $null}}
+            catch{$rempers = $null}
+
+            try{$remtm = $null
+            if($doc.settings.removeDateAndTime.Equals("")){
+                $remtm = "Yes"}else{$remtm = $null}}
+            catch{$remtm = $null}
+
+            }catch{$doc = $null}
+
+            try{
+            $authors = $null
+            # read people.xml
+            $fp = $contents|where -Property name -eq "people.xml"
+            $streamp = $fp.Open()
+            $readerp = New-Object IO.StreamReader($streamp)
+            [xml]$people = $readerp.ReadToEnd()
+            $readerp.Close()
+            $streamp.Close()
+
+            $authors = $people.people.person.presenceinfo.userid.count
+                        
+        }catch{$authors = $null}
+        }
 
         $version = if(!!$core.coreproperties.revision){$core.coreproperties.revision}
                 elseif($core.coreproperties.version){$core.coreproperties.version}
@@ -83,15 +129,19 @@ if($contents.name -notcontains "core.xml" -and $contents.name -notcontains "app.
                 Size = $oo.length
                 Application = $app.Properties.Application
                 AppVersion = $app.Properties.AppVersion
+                DocId = $docid
                 Security = $security
                 Tampered = $tampered
+                RemovePersonal = $rempers
+                RemoveTime = $remtm
                 Revision = $version
-                XL_Rev = $revision
-                "Has_Revs/Comments" = if($revcount -ge 1){"Yes"}else{}
+                "HasRevisions/Notes" = if($revcount -ge 1){"Yes"}else{}
+                TrackRevs = $docChg
                 Signed = if(!!$app.Properties.DigSig){"Yes"}else{}
                 TotalTime = $app.Properties.TotalTime
                 Pages = if(!!$app.Properties.Pages){$app.Properties.Pages}elseif(!!$app.Properties.Slides){$app.Properties.Slides}else{}
                 Lines = $app.Properties.Lines
+                People = $authors
                 Category = $core.coreproperties.category
                 ID = $core.coreproperties.identifier
                 Keyword = $core.coreproperties.keywords
@@ -108,7 +158,7 @@ if($contents.name -notcontains "core.xml" -and $contents.name -notcontains "app.
                 LastPrinted = $lastprinted
                 Template = $app.Properties.Template
                 }
-if($app.Properties.InnerXml -match "DigSig"){exit}
+
 } # end foreach ooxml
 [gc]::Collect()
 } # end ooxml count
@@ -139,8 +189,8 @@ if(!$outfile){write-warning "Bye";exit}
 # SIG # Begin signature block
 # MIIfcAYJKoZIhvcNAQcCoIIfYTCCH10CAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCAU4EfmbzgrTtkP
-# 4WHzepOCIM75R/+RIni1Rj5I7dX3KaCCGf4wggQVMIIC/aADAgECAgsEAAAAAAEx
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCDhJKhZUphGUqdV
+# 2Jh5XPi5/JhdmJoQyOyl7F8/uFzFjaCCGf4wggQVMIIC/aADAgECAgsEAAAAAAEx
 # icZQBDANBgkqhkiG9w0BAQsFADBMMSAwHgYDVQQLExdHbG9iYWxTaWduIFJvb3Qg
 # Q0EgLSBSMzETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMKR2xvYmFsU2ln
 # bjAeFw0xMTA4MDIxMDAwMDBaFw0yOTAzMjkxMDAwMDBaMFsxCzAJBgNVBAYTAkJF
@@ -283,26 +333,26 @@ if(!$outfile){write-warning "Bye";exit}
 # R3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxmb3JkMRgwFgYDVQQKEw9T
 # ZWN0aWdvIExpbWl0ZWQxJDAiBgNVBAMTG1NlY3RpZ28gUlNBIENvZGUgU2lnbmlu
 # ZyBDQQIRALjpohQ9sxfPAIfj9za0FgUwDQYJYIZIAWUDBAIBBQCgTDAZBgkqhkiG
-# 9w0BCQMxDAYKKwYBBAGCNwIBBDAvBgkqhkiG9w0BCQQxIgQgMWA1dCZWl8KZQiPb
-# 6cZEtL/TYp64ZduOAqArGPpe/NYwDQYJKoZIhvcNAQEBBQAEggEAgILGBmgjxYv/
-# 5lbydZrrjhaQ1JgmAU+Se8KekFHAqYKeMyL7sbspwjvXSF1AGC0evGs0ORetUh+G
-# eD4uGrOeLHzUE7SwCO37L4ZIeMJVQYCRks1GJWziY0F6QJ3qHVT337Ld9V3xN2qO
-# B4bdruqdL1GoRio+GA6FU+W9214QQX9CQt9X5EfxmSg4z4ny+H28U/PUDRSrVLna
-# JNds3zrfeVdqnuXV3TlHmyo/3JAneCEQIoV2T4Mogt/64i1PNqVyhTr0bnJ+pnPh
-# LFBZv0fZeIR6x5KYtLur99lag2UWCluX1V1ArtLSyrvDM0ForzGz99MdbSiR0BDc
-# 9xGqO0WcyKGCArkwggK1BgkqhkiG9w0BCQYxggKmMIICogIBATBrMFsxCzAJBgNV
+# 9w0BCQMxDAYKKwYBBAGCNwIBBDAvBgkqhkiG9w0BCQQxIgQgk5EG+BqOgjiROTex
+# 4BSma8/xUHXQngYLsPkQ6DYe/DswDQYJKoZIhvcNAQEBBQAEggEAeHUSKBGUKuML
+# IIlj8e8rkRe3NP/b0W7BiulycaLkswLBul0DjDqGyzsSCCAogBHpX9YcNM8STxYC
+# WlAKSPQDpoyj/mf1Z65BSfWMExYWKDy7BSXW5BTFm3X0ir3tiJN4uhnoVw3CIVNG
+# BVny/zU76dkE5GJqTO6JeZLeG7IM8LSWF6q9OC9wQPlMw0clYyj57R34LVNsz/nt
+# m/2ocDApK0i3BtDPl8jVt95dkF6BFWOkD34swduacCsECY224h+66yDJuG/w9bHd
+# kMQ1lq4BdmgQYt0/zaYEHG6uHJeEHF2QTq2wpH1qcRvRsTyVoODRdmqglFP4hNSC
+# eD3IeKPbtaGCArkwggK1BgkqhkiG9w0BCQYxggKmMIICogIBATBrMFsxCzAJBgNV
 # BAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMTEwLwYDVQQDEyhHbG9i
 # YWxTaWduIFRpbWVzdGFtcGluZyBDQSAtIFNIQTI1NiAtIEcyAgwkVLh/HhRTrTf6
 # oXgwDQYJYIZIAWUDBAIBBQCgggEMMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-# HAYJKoZIhvcNAQkFMQ8XDTIwMDQwMzE3MDAzNlowLwYJKoZIhvcNAQkEMSIEILeq
-# slbOZtmB/1RIc55IF1btvqAMI0BaYGH8J5KhhCxkMIGgBgsqhkiG9w0BCRACDDGB
+# HAYJKoZIhvcNAQkFMQ8XDTIwMDQwMzIwMjUyNVowLwYJKoZIhvcNAQkEMSIEIFpT
+# AcV5VvQ6aDU1Un4gbaNE+QjHNW5Ih3MkAF+955OqMIGgBgsqhkiG9w0BCRACDDGB
 # kDCBjTCBijCBhwQUPsdm1dTUcuIbHyFDUhwxt5DZS2gwbzBfpF0wWzELMAkGA1UE
 # BhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExMTAvBgNVBAMTKEdsb2Jh
 # bFNpZ24gVGltZXN0YW1waW5nIENBIC0gU0hBMjU2IC0gRzICDCRUuH8eFFOtN/qh
-# eDANBgkqhkiG9w0BAQEFAASCAQDL5PmUsHu+ziEKxLF+/gD6yWaYzBl3fMgqkRvx
-# /UO4LC0hUdFaP2aGVeLruIMtrXxTQ40yoynaTdWW7qtGKrUvKSCXswfbs6D6WaVS
-# 2E/hgoh90vsOWl9inUiS+QnpUXS8W2oDw8uFXDukpP80CZU1HRJFNB8Hko4wrCtx
-# F8xIP5P6lGQKfsx4CG3A/82FgK1u/zlTrJ+lG3Y9pGjeqqrHjWdTtglhIceTNwV4
-# jEvSPLTDAO0DmRFzA9c4JpkDRdV7RviRnw9BW1CRUfgZqHoy23C3N2yFNWfPwWua
-# B3OxZhXGmNLvdNmV5Rz0SjztEMsxLkC4impoKam5PQtU5Ys2
+# eDANBgkqhkiG9w0BAQEFAASCAQAIxFTEdxK5gx8hXNPy9kn0qjFky/wWDgOK6aDT
+# TldL7jPJq6Mlv3SL6pGtmYQhWlGhtkkmzUnjLmrv8C27QDN99TjZSgjKfb5CKVFS
+# 4LoOrl3mRJJU+jUaUN2rF0kfazGBeEj/Me97aFAqmg5b1/wt6fPIVeCe7szqkV70
+# xdHdBW6dQ9U5EYkg6thClwLrrNkUUI++XqlanwAKnmBH7Gy/HZSBD6zC/6OMcB5R
+# jO8i06OfWLgE/YiDj9mDWKfn6gFdfNEEHPrO9ok6F9XhDdLNsLZiZVM+xtnndRp9
+# J2TrF578yaMi9NluO15j2QT6GZljanACVCugfmK7qZDtIcLT
 # SIG # End signature block
