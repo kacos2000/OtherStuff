@@ -2,7 +2,7 @@
 $ErrorActionPreference = 'Stop'
 # Show Open File Dialogs 
 Function Get-FileName($initialDirectory, $Title ,$Filter)
-{[System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") |Out-Null
+{
 		$OpenFileDialog = New-Object System.Windows.Forms.OpenFileDialog
 		$OpenFileDialog.Title = $Title
 		$OpenFileDialog.initialDirectory = $initialDirectory
@@ -70,8 +70,8 @@ $Metadata = foreach($m in $meta){
             
             $LastModified = [System.BitConverter]::ToString($m.LastModified) -replace "-",""   # 128-bit SystemTime
             $SortKey      = Get-Date ([DateTime]::FromFileTime($m.SortKey)) -Format o  # Filetime (dec) - in local(user) time
-            $Itemkey      = [System.Text.Encoding]::Unicode.GetString($m.Itemkey)
-            $ItemData     = ([System.Text.Encoding]::Unicode.GetString($m.Itemdata))  #-replace ('[^x20-x7e]+','')
+            $Itemkey      = [System.Text.Encoding]::utf8.GetString($m.Itemkey)
+            $ItemData     = if(![string]::IsNullOrEmpty($m.Itemdata)){([System.Text.Encoding]::utf8.GetString($m.Itemdata))}else{}  #-replace ('[^x20-x7e]+','')
                         
             try {$xmlitem = [xml]($ItemData.TrimEnd([char]0))} catch {} 
             
