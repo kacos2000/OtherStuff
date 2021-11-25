@@ -1,6 +1,6 @@
 ### Powershell script to show the [Allocated Clusters](https://github.com/kacos2000/Other/blob/master/ExFat/ExF_Bitmap.ps1) from an exFAT $Bitmap 
 
-Each byte value represents the allocation status for 8 clusters. Translated to binary, each bit, starting from right to left is the allocation status switch for one cluster. So the Hex value 0xF0, of offset 0x09, is represented in binary 111110000 and accordingly: 
+Each byte value represents the allocation status for 8 clusters. Translated to binary, each bit, starting from right to left is the allocation status switch for one cluster. So the Hex value 0xF0, of offset 0x09, is represented in binary as 111110000 and accordingly: 
 
 
 bit |	1 |	1 |	1 |	1 |	0 |	0 |	0 |	0
@@ -12,7 +12,7 @@ so we get:<br>
 
 Popup Window Output *(listing of all allocated clusters)*:<br>
 ![window](https://raw.githubusercontent.com/kacos2000/Other/master/ExFat/bit1.JPG)<br>
-*Note: I ordered the Cluster (#1-#8) in numerical order for easier viewing.* 
+*Note: I sorted the Cluster (#1-#8) in numerical order for easier viewing.* 
 
 
 
